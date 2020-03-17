@@ -1,13 +1,27 @@
 {
 	"name": "Repository",
-	"servePort": 8000,
 	"tree": {
 		"$className": "DataModel",
-		"ServerStorage": {
-			"$path": "testscripts/subfolder"
-		},
 		"ReplicatedStorage": {
-			"$path": "testscripts/subfolder2"
+			"$className": "ReplicatedStorage",
+			"NexusEmbeddedVSCode": {
+                "$path": "plugins/NexusEmbeddedVSCode.server.lua",
+				"NexusEmbeddedEditor": {
+					"$path": "plugins/src"
+				},
+                "NexusPluginFramework": {
+                    "$path": "plugins/modules/Nexus-Plugin-Framework/src",
+                    "NexusInstance": {
+                        "$path": "plugins/modules/Nexus-Plugin-Framework/module/Nexus-Instance/src"
+                    },
+                    "NexusProject": {
+                        "$path": "plugins/modules/Nexus-Plugin-Framework/module/Nexus-Project/src",
+                        "NexusInstance": {
+                            "$path": "plugins/modules/Nexus-Plugin-Framework/module/Nexus-Instance/src"
+                        }
+                    }
+                }
+            }
 		}
 	}
 }
