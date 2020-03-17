@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusEmbeddedEditor", "NexusEmbeddedEditor\NexusEmbeddedEditor.csproj", "{39E3A3AA-18F8-46FC-ACD5-56107DA18473}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusEmbeddedMSVC", "NexusEmbeddedMSVC\NexusEmbeddedMSVC.csproj", "{B6AA9E84-27B1-49A8-AC6F-DC1C46690968}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusEmbeddedVSCode", "NexusEmbeddedVSCode\NexusEmbeddedVSCode.csproj", "{B6AA9E84-27B1-49A8-AC6F-DC1C46690968}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

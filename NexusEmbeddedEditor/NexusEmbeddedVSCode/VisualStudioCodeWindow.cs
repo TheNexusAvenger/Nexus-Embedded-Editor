@@ -12,7 +12,7 @@ using System.Windows.Automation;
 using NexusEmbeddedEditor.Project;
 using NexusEmbeddedEditor.Window;
 
-namespace NexusEmbeddedMSVC
+namespace NexusEmbeddedVSCode
 {
     public class VisualStudioCodeWindow : EditorWindow
     {

@@ -7,7 +7,7 @@
 using System;
 using System.IO;
 
-namespace NexusEmbeddedMSVC
+namespace NexusEmbeddedVSCode
 {
     internal class Program
     {
