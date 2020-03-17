@@ -4,6 +4,7 @@
  * Abstract class for an editor window.
  */
 
+using System;
 using System.Windows;
 using System.Windows.Automation;
 
@@ -34,11 +35,18 @@ namespace NexusEmbeddedEditor.Window
          */
         public virtual void Move(Rect editorBoundingSize)
         {
-            if (this.Attached)
+            if (this.Attached && this.Active)
             {
-                this.FocusPattern.SetWindowVisualState(WindowVisualState.Normal);
-                this.SizePattern.Move(editorBoundingSize.X,editorBoundingSize.Y);
-                this.SizePattern.Resize(editorBoundingSize.Width,editorBoundingSize.Height);
+                try
+                {
+                    this.FocusPattern.SetWindowVisualState(WindowVisualState.Normal);
+                    this.SizePattern.Move(editorBoundingSize.X, editorBoundingSize.Y);
+                    this.SizePattern.Resize(editorBoundingSize.Width, editorBoundingSize.Height);
+                }
+                catch (InvalidOperationException)
+                {
+                    
+                }
             }
         }
         
@@ -47,9 +55,17 @@ namespace NexusEmbeddedEditor.Window
          */
         public virtual void Minimize()
         {
-            if (this.Attached && this.FocusPattern.Current.WindowVisualState != WindowVisualState.Minimized)
+            
+            if (this.Attached && this.Active && this.FocusPattern.Current.WindowVisualState != WindowVisualState.Minimized)
             {
-                this.FocusPattern.SetWindowVisualState(WindowVisualState.Minimized);
+                try
+                {
+                    this.FocusPattern.SetWindowVisualState(WindowVisualState.Minimized);
+                }
+                catch (InvalidOperationException)
+                {
+                    
+                }
             }
         }
         
