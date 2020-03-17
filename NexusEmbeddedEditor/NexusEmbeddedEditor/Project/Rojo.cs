@@ -57,20 +57,20 @@ namespace NexusEmbeddedEditor.Project
         /*
          * Returns the paths for a given tree object.
          */
-        public HashSet<string> GetPaths(Dictionary<string,object> rojoNode)
+        public Dictionary<string,string> GetPaths(Dictionary<string,object> rojoNode,string parentName)
         {
             // Process the subnodes.
-            var paths = new HashSet<string>();
+            var paths = new Dictionary<string,string>();
             foreach (var node in rojoNode)
             {
                 if (node.Key.ToLower() == "$path")
                 {
-                    paths.Add((string) node.Value);
+                    paths[parentName] = (string) node.Value;
                 } else if (!node.Key.StartsWith("$"))
                 {
-                    foreach (var path in this.GetPaths(JsonConvert.DeserializeObject<Dictionary<string,object>>(node.Value.ToString())))
+                    foreach (var data in this.GetPaths(JsonConvert.DeserializeObject<Dictionary<string,object>>(node.Value.ToString()),node.Key))
                     {
-                        paths.Add(path);
+                        paths[data.Key] = data.Value;
                     }
                 }
             }
@@ -82,13 +82,13 @@ namespace NexusEmbeddedEditor.Project
         /*
          * Returns the files and directories to search through for a file.
          */
-        public List<string> GetSearchDirectories()
+        public Dictionary<string,string> GetSearchDirectories()
         {
             // Get the paths.
-            var paths = new List<string>();
-            foreach (var path in GetPaths(JsonConvert.DeserializeObject<RojoJsonStructure>(File.ReadAllText(this.ProjectFileLocation)).tree))
+            var paths = new Dictionary<string,string>();
+            foreach (var data in GetPaths(JsonConvert.DeserializeObject<RojoJsonStructure>(File.ReadAllText(this.ProjectFileLocation)).tree,"tree"))
             {
-                paths.Add(path);
+                paths[data.Key] = data.Value;
             }
             
             // Return the paths.

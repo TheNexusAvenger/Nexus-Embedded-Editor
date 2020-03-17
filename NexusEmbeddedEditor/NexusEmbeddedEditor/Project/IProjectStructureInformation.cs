@@ -23,6 +23,6 @@ namespace NexusEmbeddedEditor.Project
         /*
          * Returns the files and directories to search through for a file.
          */
-        List<string> GetSearchDirectories();
+        Dictionary<string,string> GetSearchDirectories();
     }
 }

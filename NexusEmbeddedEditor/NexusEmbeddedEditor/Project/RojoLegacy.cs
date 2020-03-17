@@ -4,6 +4,7 @@
  * Stores information for Rojo 0.4 and older.
  */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -13,6 +14,7 @@ namespace NexusEmbeddedEditor.Project
     public class RojoLegacyParition
     {
         public string path;
+        public string target;
     }
     
     public class RojoLegacyJsonStructure
@@ -51,17 +53,22 @@ namespace NexusEmbeddedEditor.Project
         /*
          * Returns the files and directories to search through for a file.
          */
-        public List<string> GetSearchDirectories()
+        public Dictionary<string,string> GetSearchDirectories()
         {
             // Get the paths.
-            var paths = new List<string>();
+            var paths = new Dictionary<string,string>();
             var projectFile = Path.Combine(this.ProjectDirectory,"rojo.json");
             foreach (var partition in JsonConvert.DeserializeObject<RojoLegacyJsonStructure>(File.ReadAllText(projectFile)).partitions.Values)
             {
-                if (!paths.Contains(partition.path))
+                // Get the target.
+                var target = partition.target;
+                if (target.Contains("."))
                 {
-                    paths.Add(partition.path);
+                    target = target.Substring(target.LastIndexOf(".",StringComparison.Ordinal));
                 }
+                
+                // Add the target.
+                paths[target] = partition.path;
             }
             
             // Return the paths.
