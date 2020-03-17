@@ -33,7 +33,7 @@ namespace NexusEmbeddedEditor
             
             // Create the request handler.
             var requestHandler = new RequestHandler();
-            var sessions = new Dictionary<string,Session>();
+            var sessions = new SessionStorage();
             requestHandler.RegisterHandler("POST","/connect",new ConnectRequestHandler(sessions,projectStructure,initializeWindowFunction));
             requestHandler.RegisterHandler("POST","/attach",new AttachRequestHandler(sessions));
             requestHandler.RegisterHandler("POST","/detach",new DetachRequestHandler(sessions));

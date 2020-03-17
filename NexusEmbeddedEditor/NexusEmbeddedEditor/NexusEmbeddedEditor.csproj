@@ -68,6 +68,7 @@
     <Compile Include="Server\DisconnectRequestHandler.cs" />
     <Compile Include="Server\Session.cs" />
     <Compile Include="Server\SessionRequestHandler.cs" />
+    <Compile Include="Server\SessionStorage.cs" />
     <Compile Include="Window\BaseWindow.cs" />
     <Compile Include="Window\EditorWindow.cs" />
     <Compile Include="Window\RobloxStudioWindow.cs" />

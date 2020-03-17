@@ -12,12 +12,12 @@ namespace NexusEmbeddedEditor.Server
 {
     public class DetachRequestHandler : IClientRequestHandler
     {
-        private Dictionary<string,Session> Sessions;
+        private SessionStorage Sessions;
         
         /*
          * Creates a request handler object.
          */
-        public DetachRequestHandler(Dictionary<string,Session> sessions)
+        public DetachRequestHandler(SessionStorage sessions)
         {
             this.Sessions = sessions;
         }
@@ -34,14 +34,14 @@ namespace NexusEmbeddedEditor.Server
             }
             
             // Return an error if the session doesn't exist.
-            var session = request.GetURL().GetParameter("session");
-            if (!this.Sessions.ContainsKey(session))
+            var session = this.Sessions.GetSession(request.GetURL().GetParameter("session"));
+            if (session == null)
             {
                 return HttpResponse.CreateBadRequestResponse("Session not found.");
             }
             
             // Set the editor as not attached and return a success response.
-            this.Sessions[session].EditorWindow.Attached = false;
+            session.EditorWindow.Attached = false;
             return HttpResponse.CreateSuccessResponse("Success.");
         }
     }

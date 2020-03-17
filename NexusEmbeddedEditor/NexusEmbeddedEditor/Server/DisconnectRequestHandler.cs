@@ -12,12 +12,12 @@ namespace NexusEmbeddedEditor.Server
 {
     public class DisconnectRequestHandler : IClientRequestHandler
     {
-        private Dictionary<string,Session> Sessions;
+        private SessionStorage Sessions;
         
         /*
          * Creates a request handler object.
          */
-        public DisconnectRequestHandler(Dictionary<string,Session> sessions)
+        public DisconnectRequestHandler(SessionStorage sessions)
         {
             this.Sessions = sessions;
         }
@@ -34,17 +34,15 @@ namespace NexusEmbeddedEditor.Server
             }
             
             // Return an error if the session doesn't exist.
-            var session = request.GetURL().GetParameter("session");
-            if (!this.Sessions.ContainsKey(session))
+            var sessionId = request.GetURL().GetParameter("session");
+            var session = this.Sessions.GetSession(sessionId);
+            if (session == null)
             {
                 return HttpResponse.CreateBadRequestResponse("Session not found.");
             }
             
             // Close the session and return a success response.
-            var activeSession = this.Sessions[session];
-            activeSession.EditorWindow.Close();
-            activeSession.StudioWindow.Window.Release();
-            this.Sessions.Remove(session);
+            this.Sessions.CloseSession(sessionId);
             return HttpResponse.CreateSuccessResponse("Success.");
         }
     }

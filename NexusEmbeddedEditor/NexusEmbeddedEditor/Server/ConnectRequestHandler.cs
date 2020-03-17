@@ -16,14 +16,14 @@ namespace NexusEmbeddedEditor.Server
 {
     public class ConnectRequestHandler : IClientRequestHandler
     {
-        private Dictionary<string,Session> Sessions;
+        private SessionStorage Sessions;
         private ProjectStructure Structure;
         private Func<ProjectStructure,EditorWindow> InitializeWindowFunction;
         
         /*
          * Creates a request handler object.
          */
-        public ConnectRequestHandler(Dictionary<string,Session> sessions,ProjectStructure structure,Func<ProjectStructure,EditorWindow> initializeWindowFunction)
+        public ConnectRequestHandler(SessionStorage sessions,ProjectStructure structure,Func<ProjectStructure,EditorWindow> initializeWindowFunction)
         {
             this.Sessions = sessions;
             this.Structure = structure;
@@ -42,8 +42,9 @@ namespace NexusEmbeddedEditor.Server
             }
             
             // Return an error if the session already exists.
-            var session = request.GetURL().GetParameter("session");
-            if (this.Sessions.ContainsKey(session))
+            var sessionId = request.GetURL().GetParameter("session");
+            var session = this.Sessions.GetSession(sessionId);
+            if (session != null)
             {
                 return HttpResponse.CreateBadRequestResponse("Session already exists.");
             }
@@ -52,7 +53,7 @@ namespace NexusEmbeddedEditor.Server
             RobloxStudioWindow studioWindow = null;
             try
             {
-                studioWindow = RobloxStudioWindow.GetWindow(session,this.Structure);
+                studioWindow = RobloxStudioWindow.GetWindow(sessionId,this.Structure);
             }
             catch (ElementNotAvailableException)
             {
@@ -62,10 +63,10 @@ namespace NexusEmbeddedEditor.Server
             studioWindow.SetExternalEditor(editorWindow);
             
             // Add the session and return a success response.
-            var sessionObject = new Session();
-            sessionObject.StudioWindow = studioWindow;
-            sessionObject.EditorWindow = editorWindow;
-            this.Sessions[session] = sessionObject;
+            session = new Session();
+            session.StudioWindow = studioWindow;
+            session.EditorWindow = editorWindow;
+            this.Sessions.StoreSession(sessionId,session);
             return HttpResponse.CreateSuccessResponse("Success.");
         }
     }

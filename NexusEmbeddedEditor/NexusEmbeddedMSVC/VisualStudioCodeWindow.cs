@@ -58,7 +58,7 @@ namespace NexusEmbeddedMSVC
                 {
                     try
                     {
-                        var _ = window.Window.Window.Current;
+                        var _ = window.Window.Window.Current.ProcessId;
                         Thread.Sleep(50);
                     }
                     catch (ElementNotAvailableException)
