@@ -170,7 +170,7 @@ namespace NexusEmbeddedEditor.Window
                                         if ((selectedProcessId == externalEditorProcessId && selectedControlType != "ControlType.Pane") || (selectedProcessId == robloxProcessId && selectedControlType == "ControlType.Edit"))
                                         {
                                             var editorBoundingSize = editorWindow.Current.BoundingRectangle;
-                                            if (editorBoundingSize != lastBoundingSize || selectedProcessId != lastProcessId || selectedControlType != lastControlType)
+                                            if ((editorBoundingSize != lastBoundingSize || selectedProcessId != lastProcessId || selectedControlType != lastControlType) && currentFocusedElement.BoundingRectangle.Height > 80)
                                             {
                                                 // Update the opened script if the script editor is focused.
                                                 if (editorWindow.Current.HasKeyboardFocus)
