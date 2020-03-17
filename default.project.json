@@ -1,0 +1,13 @@
+{
+	"name": "Repository",
+	"servePort": 8000,
+	"tree": {
+		"$className": "DataModel",
+		"ServerStorage": {
+			"$path": "testscripts/subfolder"
+		},
+		"ReplicatedStorage": {
+			"$path": "testscripts/subfolder2"
+		}
+	}
+}
