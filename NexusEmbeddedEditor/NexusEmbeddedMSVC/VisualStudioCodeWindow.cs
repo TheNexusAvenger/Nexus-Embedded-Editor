@@ -51,9 +51,21 @@ namespace NexusEmbeddedMSVC
             window.MainProcess = process;
             
             // Connect closing the window.
+            // Waiting for the process to close is not used because VS Code combines processes.
             new Thread(() =>
             {
-                process.WaitForExit();
+                while (true)
+                {
+                    try
+                    {
+                        var _ = window.Window.Window.Current;
+                        Thread.Sleep(50);
+                    }
+                    catch (ElementNotAvailableException)
+                    {
+                        break;
+                    }
+                }
                 window.Attached = false;
                 window.Active = false;
             }).Start();
@@ -68,6 +80,16 @@ namespace NexusEmbeddedMSVC
         public override void Close()
         {
             base.Close();
+            
+            // Close the window.
+            try
+            {
+                ((WindowPattern) this.Window.Window.GetCurrentPattern(WindowPattern.Pattern)).Close();
+            }
+            catch (Exception)
+            {
+                
+            }
             
             // Stop the editor process.
             if (this.MainProcess != null && !this.MainProcess.HasExited)
