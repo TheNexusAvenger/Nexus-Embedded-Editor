@@ -153,13 +153,13 @@ namespace NexusEmbeddedEditor.Window
                         }
                         else
                         {
-                            // Move the window;
-                            var focusedElement = AutomationElement.FocusedElement;
-                            if (focusedElement != null)
+                            try
                             {
-                                var currentFocusedElement = focusedElement.Current;
-                                try
+                                // Move the window;
+                                var focusedElement = AutomationElement.FocusedElement;
+                                if (focusedElement != null)
                                 {
+                                    var currentFocusedElement = focusedElement.Current;
                                     var selectedProcessId = currentFocusedElement.ProcessId;
                                     var selectedControlType = currentFocusedElement.ControlType.ProgrammaticName;
                                     var editorWindow = this.GetEditorWindow(selectedProcessId == robloxProcessId && selectedProcessId != lastProcessId);
@@ -193,9 +193,9 @@ namespace NexusEmbeddedEditor.Window
                                         // Minimize the editor if no editor is open.
                                         externalEditor.Minimize();
                                     }
-                                } catch (ElementNotAvailableException) {
-                                    // Thrown if the focused element is closed while reading (ex: using and then closing another application).
                                 }
+                            } catch (ElementNotAvailableException) {
+                                // Thrown if the focused element is closed while reading (ex: using and then closing another application).
                             }
                         }
 
