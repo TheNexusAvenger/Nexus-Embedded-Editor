@@ -6,7 +6,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Nexus.Http.Server.Http.Request;
 using Nexus.Http.Server.Http.Server;
@@ -38,6 +37,7 @@ namespace NexusEmbeddedEditor
             requestHandler.RegisterHandler("POST","/attach",new AttachRequestHandler(sessions));
             requestHandler.RegisterHandler("POST","/detach",new DetachRequestHandler(sessions));
             requestHandler.RegisterHandler("POST","/disconnect",new DisconnectRequestHandler(sessions));
+            requestHandler.RegisterHandler("POST","/openscript",new OpenScriptRequestHandler(sessions));
             requestHandler.RegisterHandler("GET","/session",new SessionRequestHandler(sessions));
             
             // Output the starter information.

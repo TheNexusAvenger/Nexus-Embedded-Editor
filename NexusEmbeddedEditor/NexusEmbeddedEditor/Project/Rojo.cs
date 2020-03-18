@@ -68,7 +68,7 @@ namespace NexusEmbeddedEditor.Project
                     paths[parentName] = (string) node.Value;
                 } else if (!node.Key.StartsWith("$"))
                 {
-                    foreach (var data in this.GetPaths(JsonConvert.DeserializeObject<Dictionary<string,object>>(node.Value.ToString()),node.Key))
+                    foreach (var data in this.GetPaths(JsonConvert.DeserializeObject<Dictionary<string,object>>(node.Value.ToString()),parentName + "." + node.Key))
                     {
                         paths[data.Key] = data.Value;
                     }
@@ -86,9 +86,9 @@ namespace NexusEmbeddedEditor.Project
         {
             // Get the paths.
             var paths = new Dictionary<string,string>();
-            foreach (var data in GetPaths(JsonConvert.DeserializeObject<RojoJsonStructure>(File.ReadAllText(this.ProjectFileLocation)).tree,"tree"))
+            foreach (var data in GetPaths(JsonConvert.DeserializeObject<RojoJsonStructure>(File.ReadAllText(this.ProjectFileLocation)).tree,""))
             {
-                paths[data.Key] = data.Value;
+                paths[data.Key.Substring(1)] = data.Value;
             }
             
             // Return the paths.

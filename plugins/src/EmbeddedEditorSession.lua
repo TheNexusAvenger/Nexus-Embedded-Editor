@@ -11,6 +11,7 @@ local EmbeddedEditorSession = NexusInstance:Extend()
 EmbeddedEditorSession:SetClassName("EmbeddedEditorSession")
 
 local HttpService = game:GetService("HttpService")
+local StudioService = game:GetService("StudioService")
 
 
 
@@ -187,16 +188,43 @@ function EmbeddedEditorSession:DetachEditor()
 end
 
 --[[
+Updates the script that is open in Roblox studio.
+--]]
+function EmbeddedEditorSession:UpdateOpenScript()
+    if self.Connected then
+        --Send the open script request.
+        local Worked,Return = pcall(function()
+            local OpenScript = StudioService.ActiveScript
+            if OpenScript then
+                return HttpService:PostAsync("http://localhost:"..tostring(self.Port).."/openscript?session="..self.SessionId.."&script="..OpenScript:GetFullName(),OpenScript.Source)
+            end
+        end)
+
+        --Warn that the open script failed.
+        if not Worked then
+            warn("Nexus Embedded Editor server failed to open script because "..tostring(Return))
+        end
+    end
+end
+
+--[[
 Starts updating the state continously in the background.
 --]]
 function EmbeddedEditorSession:StartContinousUpdates()
+    --Set up state updating.
     spawn(function()
         while true do
             self:UpdateState(true)
             wait(1)
         end
     end)
+
+    --Set up script updating.
+    StudioService:GetPropertyChangedSignal("ActiveScript"):Connect(function()
+        self:UpdateOpenScript()
+    end)
 end
+
 
 
 return EmbeddedEditorSession

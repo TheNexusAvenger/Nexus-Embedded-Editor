@@ -4,7 +4,6 @@
  * Stores information for Rojo 0.4 and older.
  */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -60,15 +59,8 @@ namespace NexusEmbeddedEditor.Project
             var projectFile = Path.Combine(this.ProjectDirectory,"rojo.json");
             foreach (var partition in JsonConvert.DeserializeObject<RojoLegacyJsonStructure>(File.ReadAllText(projectFile)).partitions.Values)
             {
-                // Get the target.
-                var target = partition.target;
-                if (target.Contains("."))
-                {
-                    target = target.Substring(target.LastIndexOf(".",StringComparison.Ordinal));
-                }
-                
                 // Add the target.
-                paths[target] = partition.path;
+                paths[partition.target] = partition.path;
             }
             
             // Return the paths.

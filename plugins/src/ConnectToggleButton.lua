@@ -34,6 +34,7 @@ function ConnectToggleButton:__new(EditorName,Toolbar,Session,Icon)
                 Session:DisconnectEditor()
             else
                 Session:ConnectEditor()
+                Session:UpdateOpenScript()
             end
 			
 			wait()

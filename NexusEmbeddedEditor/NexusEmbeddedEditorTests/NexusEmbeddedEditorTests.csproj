@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit.3.12.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{39E3A3AA-18F8-46FC-ACD5-56107DA18473}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{69B87B7E-2E44-4B38-9D98-F7E4A12A9731}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NexusEmbeddedEditor</RootNamespace>
-    <AssemblyName>NexusEmbeddedEditor</AssemblyName>
+    <RootNamespace>NexusEmbeddedEditorTests</RootNamespace>
+    <AssemblyName>NexusEmbeddedEditorTests</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,52 +33,36 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NexusHttpServer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\NexusHttpServer.1.1.0\lib\netstandard2.0\NexusHttpServer.dll</HintPath>
+    <Reference Include="nunit.framework, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
+      <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UIAutomationClient" />
-    <Reference Include="UIAutomationClientsideProviders" />
-    <Reference Include="UIAutomationProvider" />
-    <Reference Include="UIAutomationTypes" />
-    <Reference Include="websocket-sharp-standard, Version=1.0.3.0, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
-      <HintPath>..\packages\WebSocketSharp.Standard.1.0.3\lib\netstandard2.0\websocket-sharp-standard.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="Project\IProjectStructureInformation.cs" />
-    <Compile Include="Project\ProjectStructure.cs" />
-    <Compile Include="Project\ProjectStructureFinder.cs" />
-    <Compile Include="Project\Rojo.cs" />
-    <Compile Include="Project\RojoLegacy.cs" />
+    <Compile Include="Project\ProjectStructureTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\AttachRequestHandler.cs" />
-    <Compile Include="Server\ConnectRequestHandler.cs" />
-    <Compile Include="Server\DetachRequestHandler.cs" />
-    <Compile Include="Server\DisconnectRequestHandler.cs" />
-    <Compile Include="Server\OpenScriptRequestHandler.cs" />
-    <Compile Include="Server\Session.cs" />
-    <Compile Include="Server\SessionRequestHandler.cs" />
-    <Compile Include="Server\SessionStorage.cs" />
-    <Compile Include="Window\BaseWindow.cs" />
-    <Compile Include="Window\EditorWindow.cs" />
-    <Compile Include="Window\RobloxStudioWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NexusEmbeddedEditor\NexusEmbeddedEditor.csproj">
+      <Project>{39e3a3aa-18f8-46fc-acd5-56107da18473}</Project>
+      <Name>NexusEmbeddedEditor</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.12.0\build\NUnit.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">

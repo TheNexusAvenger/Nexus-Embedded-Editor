@@ -35,6 +35,7 @@ function AttachToggleButton:__new(EditorName,Toolbar,Session,Icon)
             else
                 Session:ConnectEditor()
                 Session:AttachEditor()
+                Session:UpdateOpenScript()
             end
 			
 			wait()

@@ -24,7 +24,6 @@ namespace NexusEmbeddedEditor.Window
         private Condition TabCondition;
         private WindowPattern FocusPattern;
         private AutomationElement EditorParent;
-        private AutomationElement TabsParent;
         private bool Active = true;
         private EditorWindow ExternalEditor;
         
@@ -58,7 +57,6 @@ namespace NexusEmbeddedEditor.Window
             
             // Get the parents.
             this.EditorParent = this.Window.Window.FindFirst(TreeScope.Children,this.PaneCondition).FindFirst(TreeScope.Children,this.PaneCondition).FindAll(TreeScope.Children,this.PaneCondition)[1];
-            this.TabsParent = this.Window.Window.FindFirst(TreeScope.Children,this.PaneCondition).FindFirst(TreeScope.Children,this.PaneCondition);
         }
         
         /*
@@ -173,12 +171,6 @@ namespace NexusEmbeddedEditor.Window
                                         {
                                             if (editorBoundingSize != lastBoundingSize || selectedProcessId != lastProcessId || selectedControlType != lastControlType || lastAttached != externalEditor.Attached)
                                             {
-                                                // Update the opened script if the script editor is focused.
-                                                if (editorWindow.Current.HasKeyboardFocus)
-                                                {
-                                                    this.UpdateOpenScript();
-                                                }
-
                                                 // Move the window.
                                                 externalEditor.Move(editorBoundingSize);
 
@@ -209,28 +201,19 @@ namespace NexusEmbeddedEditor.Window
         }
         
         /*
-         * Updates the opened script.
+         * Opens a script.
          */
-        public void UpdateOpenScript()
+        public void OpenScript(string scriptPath,string existingSource)
         {
-            new Thread(() =>
+            // Get the file location.
+            // TODO: Set up temporary file if the file doesn't exist in the project.
+            var fileLocation = this.Structure.GetFileLocation(scriptPath);
+            
+            // Open the file if the editor is still defined.
+            if (this.ExternalEditor != null && fileLocation != null)
             {
-                // Invoke the event if the opened script was changed.
-                var editor = this.GetEditorWindow();
-                if (editor != null)
-                {
-                    // Determine the file to open.
-                    var currentScriptName = this.TabsParent.FindFirst(TreeScope.Children,this.TabCondition).Current.Name;
-                    var scriptSource = ((ValuePattern) this.GetEditorWindow(true).GetCurrentPattern(ValuePattern.Pattern)).Current.Value;
-                    var fileLocation = this.Structure.GetFileLocation(currentScriptName,scriptSource);
-                    
-                    // Open the file if the editor is still defined (automation code has a delay).
-                    if (this.ExternalEditor != null && fileLocation != null)
-                    {
-                        this.ExternalEditor.OpenFile(fileLocation);
-                    }
-                }
-            }).Start();
+                this.ExternalEditor.OpenFile(fileLocation);
+            }
         }
     }
 }
