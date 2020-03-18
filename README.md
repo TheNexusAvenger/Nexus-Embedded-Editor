@@ -41,28 +41,13 @@ like Notepad or WordPad.
 Each editor has their own assossiated plugin rather than 1 massive plugin with
 all of the editors since Roblox developers using Rojo typically use only 1 external editor.
 The plugins can be found on the Roblox Market Place for the following editors:
-* [Microsoft Visual Studio Code](https://www.roblox.com/)
+* [Microsoft Visual Studio Code](https://www.roblox.com/library/4790916291/Nexus-Embedded-VS-Code)
 
-## Building
-Since the project uses .NET Framework and uses Windows-specific features in .NET
-Framework (mainly `System.Windows.Automation`), this project can only be built
-on Windows.
-
-### With .NET Core Installed
-If .NET Core is installed and `dotnet` is available, the project can be built using:
-```
-$ dotnet build NexusEmbeddedEditor/
-```
-
-### Without .NET Core Installed
-Assuming Microsoft Visual Studio 2019 (Community Edition) is installed, the project can be built using:
-```
-$ C:/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2019/Community/MSBuild/Current/Bin/msbuild.exe NexusEmbeddedEditor/
-```
-
-## Contributing
-Both issues and pull requests are accepted for this project. Issues may not be
-fixable due to limitations of the system.
+## Supported Project Structures
+Currently, only [Rojo](https://github.com/rojo-rbx/rojo) is supported
+since it is project manager endorsed by Roblox employees. Pull requests
+and issues about adding other project structures are accepted if there is
+a justification of why that tool is used.
 
 ## Limitations
 This project has a lot of limitations that should be considered.
@@ -89,6 +74,57 @@ buttons re-focusing the external editor.
 Since Roblox Studio is not focused, any keyboard shortcuts for Roblox will
 not work with the external editor focused. Shortcut passthrough is possible but
 would result in unwanted shortcuts being passed through to Roblox Studio.
+
+### Can't Edit Roblox-Only Scripts when Attached
+When the editor window is attached (not just connected), it becomes impossible
+to modify scripts that aren't in the file system. This is because moving the window
+and switching threads are handled separately, and the thread for opening scripts
+can't resolve a script it can't find in the file system. The only workaround
+is to detach the window to modify the script and re-attach when done. 
+
+## Potential Future Changes
+### Custom Ports
+It is currently possible to have more than 1 Rojo project open using
+different ports, but it isn't possible currently since ports can't be changed.
+This could be addressed reasonably easily on the server, but would require adding
+a user interface for the client.
+
+### Standalone Version
+Nexus Embedded Editor currently works only with project managers like Rojo.
+Another version of the executable could be created to support working on
+scripts only in Roblox Studio using temporary files.
+
+### More Editors
+More editors could be added if there is requests for them. See the section
+about supported editors.
+
+### More Project Structures
+Currently, only Rojo is supported for project structures. Alternatives to Rojo
+exist and could be supporte. The file resolver may need to be modified for
+cases where project files are different (ex: `.client.lua` in Rojo is `.local.lua`
+in another system).
+
+## Building
+Since the project uses .NET Framework and uses Windows-specific features in .NET
+Framework (mainly `System.Windows.Automation`), this project can only be built
+on Windows.
+
+### With .NET Core Installed
+If .NET Core is installed and `dotnet` is available, the project can be built using:
+```
+$ nuget restore NexusEmbeddedEditor/
+$ dotnet build NexusEmbeddedEditor/
+```
+
+### Without .NET Core Installed
+```
+$ nuget restore NexusEmbeddedEditor/
+$ msbuild.exe NexusEmbeddedEditor/
+```
+
+## Contributing
+Both issues and pull requests are accepted for this project. Issues may not be
+fixable due to limitations of the system.
 
 ## License
 Nexus Instance is available under the terms of the Apache 
