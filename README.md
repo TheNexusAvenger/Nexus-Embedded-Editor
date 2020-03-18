@@ -92,14 +92,6 @@ Since the project uses .NET Framework and uses Windows-specific features in .NET
 Framework (mainly `System.Windows.Automation`), this project can only be built
 on Windows.
 
-### With .NET Core Installed
-If .NET Core is installed and `dotnet` is available, the project can be built using:
-```
-$ nuget restore NexusEmbeddedEditor/
-$ dotnet build NexusEmbeddedEditor/
-```
-
-### Without .NET Core Installed
 ```
 $ nuget restore NexusEmbeddedEditor/
 $ msbuild.exe NexusEmbeddedEditor/
