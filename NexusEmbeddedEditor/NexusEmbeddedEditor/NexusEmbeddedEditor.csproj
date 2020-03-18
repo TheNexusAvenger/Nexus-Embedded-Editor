@@ -56,11 +56,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="Project\IProjectStructureInformation.cs" />
+    <Compile Include="Project\Information\IProjectStructureInformation.cs" />
+    <Compile Include="Project\Information\NullStructure.cs" />
+    <Compile Include="Project\Information\Rojo.cs" />
+    <Compile Include="Project\Information\RojoLegacy.cs" />
     <Compile Include="Project\ProjectStructure.cs" />
     <Compile Include="Project\ProjectStructureFinder.cs" />
-    <Compile Include="Project\Rojo.cs" />
-    <Compile Include="Project\RojoLegacy.cs" />
     <Compile Include="Project\TemporaryFiles.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\AttachRequestHandler.cs" />

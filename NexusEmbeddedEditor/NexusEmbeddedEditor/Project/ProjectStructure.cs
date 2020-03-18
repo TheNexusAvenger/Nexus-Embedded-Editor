@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NexusEmbeddedEditor.Project.Information;
 
 namespace NexusEmbeddedEditor.Project
 {
@@ -82,24 +83,6 @@ namespace NexusEmbeddedEditor.Project
         public string GetProjectDirectory()
         {
             return this.ProjectDirectory;
-        }
-
-        /*
-         * Returns the file extension for a path.
-         */
-        public string GetScriptExtension(string path)
-        {
-            // Return a server or client script.
-            if (path.ToLower().EndsWith(".server.lua"))
-            {
-                return ".server.lua";
-            } else if (path.ToLower().EndsWith(".client.lua"))
-            {
-                return ".client.lua";
-            }
-            
-            // Return .lua.
-            return ".lua";
         }
         
         /*

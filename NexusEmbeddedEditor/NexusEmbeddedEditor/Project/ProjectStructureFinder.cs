@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using NexusEmbeddedEditor.Project.Information;
 
 namespace NexusEmbeddedEditor.Project
 {

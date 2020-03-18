@@ -8,14 +8,14 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace NexusEmbeddedEditor.Project
+namespace NexusEmbeddedEditor.Project.Information
 {
     public class RojoJsonStructure
     {
         public Dictionary<string,object> tree;
     }
     
-    public class Rojo: IProjectStructureInformation
+    public class Rojo : IProjectStructureInformation
     {
         private string ProjectDirectory;
         private string ProjectFileLocation;

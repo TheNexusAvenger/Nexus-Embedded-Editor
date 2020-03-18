@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace NexusEmbeddedEditor.Project
+namespace NexusEmbeddedEditor.Project.Information
 {
     public class RojoLegacyParition
     {

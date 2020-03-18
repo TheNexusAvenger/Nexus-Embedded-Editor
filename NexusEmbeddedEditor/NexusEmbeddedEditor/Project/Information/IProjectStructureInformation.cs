@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace NexusEmbeddedEditor.Project
+namespace NexusEmbeddedEditor.Project.Information
 {
     public interface IProjectStructureInformation
     {

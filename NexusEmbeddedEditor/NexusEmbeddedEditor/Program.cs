@@ -10,6 +10,7 @@ using System.IO;
 using Nexus.Http.Server.Http.Request;
 using Nexus.Http.Server.Http.Server;
 using NexusEmbeddedEditor.Project;
+using NexusEmbeddedEditor.Project.Information;
 using NexusEmbeddedEditor.Server;
 using NexusEmbeddedEditor.Window;
 
@@ -27,7 +28,7 @@ namespace NexusEmbeddedEditor
             if (projectStructure == null)
             {
                 Console.WriteLine("No project structure was found in the directory or parent directories.");
-                return;
+                projectStructure = new ProjectStructure(new NullStructure(Directory.GetCurrentDirectory()),Directory.GetCurrentDirectory());
             }
             
             // Create the request handler.
