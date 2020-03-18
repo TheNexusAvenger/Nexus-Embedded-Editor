@@ -127,6 +127,9 @@ function EmbeddedEditorSession:DisconnectEditor()
         if not Worked then
             warn("Nexus Embedded Editor server failed to disconnect because "..tostring(Return))
         end
+
+        --Clear the temporary scripts to fetch.
+        self.TemporaryScriptsMap = {}
     end
 
     --Update the state.
