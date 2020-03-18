@@ -47,7 +47,7 @@ namespace NexusEmbeddedVSCode
 
             // Create the window.
             var directoryName = Path.GetFileName(structure.GetProjectDirectory());
-            var window = new VisualStudioCodeWindow(BaseWindow.GetWindow(directoryName + " - Visual Studio Code"));
+            var window = new VisualStudioCodeWindow(BaseWindow.GetWindow(directoryName + " - Visual Studio Code",30));
             window.MainProcess = process;
             
             // Connect closing the window.
