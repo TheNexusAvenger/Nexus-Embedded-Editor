@@ -43,12 +43,22 @@ namespace NexusEmbeddedEditor.Window
                 var elementCollectionControl = RootElement.FindAll(TreeScope.Children,Automation.ControlViewCondition);
                 foreach (AutomationElement autoElement in elementCollectionControl)
                 {
-                    var searchString = autoElement.GetCurrentPropertyValue(NameProperty).ToString();
-                    if ((bool) autoElement.GetCurrentPropertyValue(IsEnabledProperty) && !WindowsInUse.Contains(autoElement) && searchString.IndexOf(windowName,StringComparison.OrdinalIgnoreCase) >= 0)
+                    try
                     {
-                        WindowsInUse.Append(autoElement);
-                        return new BaseWindow(autoElement);
+                        var searchString = autoElement.GetCurrentPropertyValue(NameProperty).ToString();
+                        if ((bool) autoElement.GetCurrentPropertyValue(IsEnabledProperty) &&
+                            !WindowsInUse.Contains(autoElement) &&
+                            searchString.IndexOf(windowName, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            WindowsInUse.Append(autoElement);
+                            return new BaseWindow(autoElement);
+                        }
                     }
+                    catch (ElementNotAvailableException)
+                    {
+                        
+                    }
+                    
                 }
             }
             searchTime.Stop();
