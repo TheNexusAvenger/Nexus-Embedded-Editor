@@ -26,8 +26,8 @@ function AttachToggleButton:__new(EditorName,Toolbar,Session,Icon)
     --Set up the button being clicked.
     local DB = true
     self.Click:Connect(function()
-        self.Active = Session.Attached
-        
+        self:SetActive(Session.Attached)
+
 		if DB then
 			DB = false
             if Session.Attached then
