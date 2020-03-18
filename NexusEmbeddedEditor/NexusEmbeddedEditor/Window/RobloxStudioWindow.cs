@@ -141,6 +141,7 @@ namespace NexusEmbeddedEditor.Window
                 var lastBoundingSize = Rect.Empty;
                 var lastProcessId = 0;
                 var lastControlType = "";
+                var lastAttached = false;
                 
                 new Thread(() =>
                 {
@@ -170,7 +171,7 @@ namespace NexusEmbeddedEditor.Window
                                         var editorBoundingSize = editorWindow.Current.BoundingRectangle;
                                         if ((selectedProcessId == externalEditorProcessId && selectedControlType != "ControlType.Pane") || (selectedProcessId == robloxProcessId && selectedControlType == "ControlType.Edit") && currentFocusedElement.BoundingRectangle.Height > 80)
                                         {
-                                            if (editorBoundingSize != lastBoundingSize || selectedProcessId != lastProcessId || selectedControlType != lastControlType)
+                                            if (editorBoundingSize != lastBoundingSize || selectedProcessId != lastProcessId || selectedControlType != lastControlType || lastAttached != externalEditor.Attached)
                                             {
                                                 // Update the opened script if the script editor is focused.
                                                 if (editorWindow.Current.HasKeyboardFocus)
@@ -185,6 +186,7 @@ namespace NexusEmbeddedEditor.Window
                                                 lastBoundingSize = editorBoundingSize;
                                                 lastProcessId = selectedProcessId;
                                                 lastControlType = selectedControlType;
+                                                lastAttached = externalEditor.Attached;
                                             }
                                         }
                                     }
