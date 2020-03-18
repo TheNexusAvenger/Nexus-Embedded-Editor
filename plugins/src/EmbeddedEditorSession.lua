@@ -26,6 +26,7 @@ function EmbeddedEditorSession:__new(Port)
     self.Attached = false
     self.DB = true
     self.Port = Port
+    self.TemporaryScriptsMap = {}
 end
 
 --[[
@@ -192,17 +193,35 @@ Updates the script that is open in Roblox studio.
 --]]
 function EmbeddedEditorSession:UpdateOpenScript()
     if self.Connected then
-        --Send the open script request.
-        local Worked,Return = pcall(function()
-            local OpenScript = StudioService.ActiveScript
-            if OpenScript then
+        local OpenScript = StudioService.ActiveScript
+        if OpenScript then
+            --Send the open script request.
+            local Worked,Return = pcall(function()
                 return HttpService:PostAsync("http://localhost:"..tostring(self.Port).."/openscript?session="..self.SessionId.."&script="..OpenScript:GetFullName(),OpenScript.Source)
-            end
-        end)
+            end)
 
-        --Warn that the open script failed.
-        if not Worked then
-            warn("Nexus Embedded Editor server failed to open script because "..tostring(Return))
+            --Add the temporary script.
+            if Worked and Return == "true" then
+                self.TemporaryScriptsMap[OpenScript] = OpenScript:GetFullName()
+            end
+
+            --Warn that the open script failed.
+            if not Worked then
+                warn("Nexus Embedded Editor server failed to open script because "..tostring(Return))
+            end
+        end
+    end
+end
+
+--[[
+Updates the source of the temporary scripts.
+--]]
+function EmbeddedEditorSession:UpdateTemporaryScripts()
+    if self.Connected then
+        for Script,Path in pairs(self.TemporaryScriptsMap) do
+            pcall(function()
+                Script.Source = HttpService:GetAsync("http://localhost:"..tostring(self.Port).."/readscript?session="..self.SessionId.."&script="..Path)
+            end)
         end
     end
 end
@@ -215,6 +234,14 @@ function EmbeddedEditorSession:StartContinousUpdates()
     spawn(function()
         while true do
             self:UpdateState(true)
+            wait(1)
+        end
+    end)
+
+    --Set up updating the scripts.
+    spawn(function()
+        while true do
+            self:UpdateTemporaryScripts()
             wait(1)
         end
     end)

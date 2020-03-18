@@ -54,6 +54,7 @@ namespace NexusEmbeddedEditor.Project
     
     public class ProjectStructure
     {
+        public TemporaryFiles TemporaryFiles;
         private IProjectStructureInformation Information;
         private string ProjectDirectory;
         
@@ -64,6 +65,7 @@ namespace NexusEmbeddedEditor.Project
         {
             this.Information = information;
             this.ProjectDirectory = projectDirectory;
+            this.TemporaryFiles = new TemporaryFiles();
         }
         
         /*

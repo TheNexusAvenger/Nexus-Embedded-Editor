@@ -39,6 +39,7 @@ namespace NexusEmbeddedEditor
             requestHandler.RegisterHandler("POST","/disconnect",new DisconnectRequestHandler(sessions));
             requestHandler.RegisterHandler("POST","/openscript",new OpenScriptRequestHandler(sessions));
             requestHandler.RegisterHandler("GET","/session",new SessionRequestHandler(sessions));
+            requestHandler.RegisterHandler("GET","/readscript",new ReadScriptRequestHandler(sessions));
             
             // Output the starter information.
             Console.WriteLine("Serving on port " + serverPort);

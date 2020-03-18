@@ -1,7 +1,7 @@
 /*
  * TheNexusAvenger
  *
- * Client request handler for opening a script.
+ * Client request handler for reading a script.
  */
 
 using System.Text;
@@ -10,14 +10,14 @@ using Nexus.Http.Server.Http.Response;
 
 namespace NexusEmbeddedEditor.Server
 {
-    public class OpenScriptRequestHandler : IClientRequestHandler
+    public class ReadScriptRequestHandler : IClientRequestHandler
     {
         private SessionStorage Sessions;
         
         /*
          * Creates a request handler object.
          */
-        public OpenScriptRequestHandler(SessionStorage sessions)
+        public ReadScriptRequestHandler(SessionStorage sessions)
         {
             this.Sessions = sessions;
         }
@@ -45,9 +45,8 @@ namespace NexusEmbeddedEditor.Server
                 return HttpResponse.CreateBadRequestResponse("Session not found.");
             }
             
-            // Open the script and return if it is temporary.
-            var isTemporary = session.StudioWindow.OpenScript(request.GetURL().GetParameter("script"),Encoding.UTF8.GetString(request.GetBody()));
-            return HttpResponse.CreateSuccessResponse(isTemporary.ToString().ToLower());
+            // Return the source of the script.
+            return HttpResponse.CreateSuccessResponse(session.StudioWindow.ReadScript(request.GetURL().GetParameter("script")));
         }
     }
 }

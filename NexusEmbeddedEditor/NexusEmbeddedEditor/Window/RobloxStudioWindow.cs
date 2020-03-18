@@ -5,6 +5,7 @@
  */
 
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Automation;
@@ -210,18 +211,36 @@ namespace NexusEmbeddedEditor.Window
         
         /*
          * Opens a script.
+         * Returns if it is a temporary file.
          */
-        public void OpenScript(string scriptPath,string existingSource)
+        public bool OpenScript(string scriptPath,string existingSource)
         {
             // Get the file location.
-            // TODO: Set up temporary file if the file doesn't exist in the project.
             var fileLocation = this.Structure.GetFileLocation(scriptPath);
+            var isTemporary = false;
+            if (fileLocation == null)
+            {
+                isTemporary = true;
+                fileLocation = this.Structure.TemporaryFiles.GetFileLocation(scriptPath);
+                File.WriteAllText(fileLocation,existingSource);
+            }
             
             // Open the file if the editor is still defined.
-            if (this.ExternalEditor != null && fileLocation != null)
+            if (this.ExternalEditor != null)
             {
                 this.ExternalEditor.OpenFile(fileLocation);
             }
+            
+            // Return if it was temporary.
+            return isTemporary;
+        }
+        
+        /*
+         * Reads the source of a script.
+         */
+        public string ReadScript(string scriptPath)
+        {
+            return File.ReadAllText(this.Structure.TemporaryFiles.GetFileLocation(scriptPath));
         }
     }
 }

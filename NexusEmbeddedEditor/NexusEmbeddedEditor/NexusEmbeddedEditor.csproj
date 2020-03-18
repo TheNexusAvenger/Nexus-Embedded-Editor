@@ -61,12 +61,14 @@
     <Compile Include="Project\ProjectStructureFinder.cs" />
     <Compile Include="Project\Rojo.cs" />
     <Compile Include="Project\RojoLegacy.cs" />
+    <Compile Include="Project\TemporaryFiles.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\AttachRequestHandler.cs" />
     <Compile Include="Server\ConnectRequestHandler.cs" />
     <Compile Include="Server\DetachRequestHandler.cs" />
     <Compile Include="Server\DisconnectRequestHandler.cs" />
     <Compile Include="Server\OpenScriptRequestHandler.cs" />
+    <Compile Include="Server\ReadScriptRequestHandler.cs" />
     <Compile Include="Server\Session.cs" />
     <Compile Include="Server\SessionRequestHandler.cs" />
     <Compile Include="Server\SessionStorage.cs" />
