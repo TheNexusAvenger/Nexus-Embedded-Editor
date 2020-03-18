@@ -111,7 +111,10 @@ namespace NexusEmbeddedVSCode
             
             // Focus the window after opening.
             process.WaitForExit();
-            this.FocusPattern.SetWindowVisualState(WindowVisualState.Normal);
+            if (this.FocusPattern.Current.WindowVisualState == WindowVisualState.Minimized)
+            {
+                this.FocusPattern.SetWindowVisualState(WindowVisualState.Normal);
+            }
         }
     }
 }
