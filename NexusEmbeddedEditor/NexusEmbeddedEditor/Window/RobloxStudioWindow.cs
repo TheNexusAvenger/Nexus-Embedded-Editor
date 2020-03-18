@@ -143,56 +143,64 @@ namespace NexusEmbeddedEditor.Window
                 
                 new Thread(() =>
                 {
-                    while (this.ExternalEditor == externalEditor && externalEditor.Active)
+                    while (this.ExternalEditor == externalEditor && externalEditor.Active && this.Active)
                     {
-                        if (this.IsMinimized())
+                        try
                         {
-                            // Minimize the editor if Roblox Studio is minimized.
-                            externalEditor.Minimize();
-                        }
-                        else
-                        {
-                            try
+                            if (this.IsMinimized())
                             {
-                                // Move the window;
-                                var focusedElement = AutomationElement.FocusedElement;
-                                if (focusedElement != null)
+                                // Minimize the editor if Roblox Studio is minimized.
+                                externalEditor.Minimize();
+                            }
+                            else
+                            {
+                                try
                                 {
-                                    var currentFocusedElement = focusedElement.Current;
-                                    var selectedProcessId = currentFocusedElement.ProcessId;
-                                    var selectedControlType = currentFocusedElement.ControlType.ProgrammaticName;
-                                    var editorWindow = this.GetEditorWindow(selectedProcessId == robloxProcessId && selectedProcessId != lastProcessId);
-
-                                    if (editorWindow != null)
+                                    // Move the window;
+                                    var focusedElement = AutomationElement.FocusedElement;
+                                    if (focusedElement != null)
                                     {
-                                        // Move the window if it is valid and has changed.
-                                        var editorBoundingSize = editorWindow.Current.BoundingRectangle;
-                                        if ((selectedProcessId == externalEditorProcessId && selectedControlType != "ControlType.Pane") || (selectedProcessId == robloxProcessId && selectedControlType == "ControlType.Edit") && currentFocusedElement.BoundingRectangle.Height > 80)
-                                        {
-                                            if (editorBoundingSize != lastBoundingSize || selectedProcessId != lastProcessId || selectedControlType != lastControlType || lastAttached != externalEditor.Attached)
-                                            {
-                                                // Move the window.
-                                                externalEditor.Move(editorBoundingSize);
+                                        var currentFocusedElement = focusedElement.Current;
+                                        var selectedProcessId = currentFocusedElement.ProcessId;
+                                        var selectedControlType = currentFocusedElement.ControlType.ProgrammaticName;
+                                        var editorWindow = this.GetEditorWindow(selectedProcessId == robloxProcessId && selectedProcessId != lastProcessId);
 
-                                                // Set the last information.
-                                                lastBoundingSize = editorBoundingSize;
-                                                lastProcessId = selectedProcessId;
-                                                lastControlType = selectedControlType;
-                                                lastAttached = externalEditor.Attached;
+                                        if (editorWindow != null)
+                                        {
+                                            // Move the window if it is valid and has changed.
+                                            var editorBoundingSize = editorWindow.Current.BoundingRectangle;
+                                            if ((selectedProcessId == externalEditorProcessId && selectedControlType != "ControlType.Pane") || (selectedProcessId == robloxProcessId && selectedControlType == "ControlType.Edit") && currentFocusedElement.BoundingRectangle.Height > 80)
+                                            {
+                                                if (editorBoundingSize != lastBoundingSize || selectedProcessId != lastProcessId || selectedControlType != lastControlType || lastAttached != externalEditor.Attached)
+                                                {
+                                                    // Move the window.
+                                                    externalEditor.Move(editorBoundingSize);
+
+                                                    // Set the last information.
+                                                    lastBoundingSize = editorBoundingSize;
+                                                    lastProcessId = selectedProcessId;
+                                                    lastControlType = selectedControlType;
+                                                    lastAttached = externalEditor.Attached;
+                                                }
                                             }
                                         }
+                                        else
+                                        {
+                                            // Minimize the editor if no editor is open.
+                                            externalEditor.Minimize();
+                                        }
                                     }
-                                    else
-                                    {
-                                        // Minimize the editor if no editor is open.
-                                        externalEditor.Minimize();
-                                    }
+                                } catch (ElementNotAvailableException) {
+                                    // Thrown if the focused element is closed while reading (ex: using and then closing another application).
                                 }
-                            } catch (ElementNotAvailableException) {
-                                // Thrown if the focused element is closed while reading (ex: using and then closing another application).
                             }
+                        } catch (ElementNotAvailableException)
+                        {
+                            // Set the window as inactive and close the editor (Thrown if Roblox Studio is closed).
+                            this.Active = false;
+                            externalEditor.Close();
                         }
-
+                        
                         // Sleep the thread for a bit.
                         Thread.Sleep(50);
                     }
