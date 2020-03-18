@@ -122,6 +122,10 @@ $ nuget restore NexusEmbeddedEditor/
 $ msbuild.exe NexusEmbeddedEditor/
 ```
 
+## Server Technical Details
+More information on how the server works can be found in the
+[technical details](technical-details.md) file.
+
 ## Contributing
 Both issues and pull requests are accepted for this project. Issues may not be
 fixable due to limitations of the system.
