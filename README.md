@@ -7,17 +7,18 @@ for development in external editors while still being able to easily
 swap to Roblox Studio and open scripts from Roblox Studio's explorer.
 
 ## Running
-Assuming a pre-existing Rojo project is set up and is connected in
-Roblox Studio, the server can be started by running the binary in
-the command line. Assuming the binary is named `rmsvc.exe`, the command
-would look like the following.
+The server can be started by running the binary in the command line.
+Assuming the binary is named `rovscode.exe`, the command would look like
+the following.
 ```
-$ ./rmsvc.exe
+$ ./rovscode.exe
 ```
+It is recommended to start it in a directory or child directory with a Rojo
+project.
 
 If a custom Rojo project script is in use, it can be defined as a parameter.
 ```
-$ ./rmsvc.exe customfile.project.json
+$ ./rovscode.exe customfile.project.json
 ```
 
 In Roblox Studio with an open place and the `HttpService` enabled, there are
@@ -56,12 +57,6 @@ This project has a lot of limitations that should be considered.
 While Rojo and a lot of external editors exist on macOS and Linux,
 Nexus Embedded Editor is only buildable and usable under Windows.
 
-### Delays When Opening Scripts
-When opening scripts in Roblox Studio, there is a delay (<250ms, >100ms)
-between opening a script as a tab and the script opening in the external
-editor. This is a limitation of searching through and reading objects in
-`System.Windows.Automation`.
-
 ### Editor Disappears When Interacting With Studio
 When using widgets in Roblox Studio, the external editor will disappear
 until the Roblox Studio editor is focused by either changing the tab or
@@ -75,24 +70,12 @@ Since Roblox Studio is not focused, any keyboard shortcuts for Roblox will
 not work with the external editor focused. Shortcut passthrough is possible but
 would result in unwanted shortcuts being passed through to Roblox Studio.
 
-### Can't Edit Roblox-Only Scripts when Attached
-When the editor window is attached (not just connected), it becomes impossible
-to modify scripts that aren't in the file system. This is because moving the window
-and switching threads are handled separately, and the thread for opening scripts
-can't resolve a script it can't find in the file system. The only workaround
-is to detach the window to modify the script and re-attach when done. 
-
 ## Potential Future Changes
 ### Custom Ports
 It is currently possible to have more than 1 Rojo project open using
 different ports, but it isn't possible currently since ports can't be changed.
 This could be addressed reasonably easily on the server, but would require adding
 a user interface for the client.
-
-### Standalone Version
-Nexus Embedded Editor currently works only with project managers like Rojo.
-Another version of the executable could be created to support working on
-scripts only in Roblox Studio using temporary files.
 
 ### More Editors
 More editors could be added if there is requests for them. See the section

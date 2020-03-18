@@ -78,13 +78,13 @@ are used from the `TransformPattern` to move the external editor to the bounding
 Studio editor.
 
 ## Opening Scripts
-Opening scripts is currently very complex since it involves finding the current active script
-and attempting to resolve the opened file using the script from the `Name` of the tab, and using
-the script source using the `Value` attribute of the `ValuePattern` of the editor if more than
-one exists. After a file is found, it is up to the editor's implementation to open it. For Microsoft
-Visual Studio Code, opening a file using the `Code.exe` executable will use an existing window
-if one exists.
+Requests for opening scripts are done from inside Roblox Studio by checking the `StudioService.ActiveScript`
+when connecting and monitoring when it changes. This is sent to the server to resolve the path for.
+If a path can't be resolved (not in the project structure), a new temporary file is created so
+the file can be editted and changes are replicated back. If the executable is started without
+a project structure, then all fils opened in Roblox Studio will be temporary files.
 
 ## Replicating Changes Back to Roblox Studio
-Nexus Embedded Editor does not handle replicating scripts back to Roblox Studio since it up
-to the project manager to do it (like Rojo).
+Nexus Embedded Editor replicates changes back to Roblox Studio for non-project files by polling
+the source of the file and setting it. If it is a project file, replication isn't managed since it is
+the responsibility of the project manager to replicate.
