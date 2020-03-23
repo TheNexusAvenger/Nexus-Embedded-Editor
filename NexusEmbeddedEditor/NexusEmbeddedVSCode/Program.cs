@@ -20,9 +20,10 @@ namespace NexusEmbeddedVSCode
         public static void Main(string[] args)
         {
             // Display a message if Microsoft Visual Studio Code is not detected.
-            if (!File.Exists(VisualStudioCodeWindow.GetExecutableLocation()))
+            var executableLocation = VisualStudioCodeWindow.GetExecutableLocation();
+            if (executableLocation == null || !File.Exists(executableLocation))
             {
-                Console.WriteLine("Microsoft Visual Studio Code was not found at " + VisualStudioCodeWindow.GetExecutableLocation());
+                Console.WriteLine("Microsoft Visual Studio Code was not found at " + Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"),"Programs","Microsoft VS Code","Code.exe") + " or in the system's PATH environment.");
                 return;
             }
             

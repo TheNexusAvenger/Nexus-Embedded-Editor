@@ -5,6 +5,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Automation;
 
@@ -28,6 +30,39 @@ namespace NexusEmbeddedEditor.Window
             // Create the patterns.
             this.FocusPattern = (WindowPattern) this.Window.Window.GetCurrentPattern(WindowPattern.Pattern);
             this.SizePattern = (TransformPattern) this.Window.Window.GetCurrentPattern(TransformPattern.Pattern);
+        }
+        
+        /*
+         * Returns the location of a file in either a hard-coded path
+         * or in the system's PATH.
+         */
+        public static string GetFileLocation(string fileName,IEnumerable<string> hardCodedDirectories = null)
+        {
+            // Iterate through the hard coded paths and return if the file exists.
+            if (hardCodedDirectories != null)
+            {
+                foreach (var directoryPath in hardCodedDirectories)
+                {
+                    var filePath = Path.Combine(directoryPath,fileName);
+                    if (File.Exists(filePath))
+                    {
+                        return filePath;
+                    }
+                }
+            }
+            
+            // Iterate through the PATH environment variable paths and return if the file exists.
+            foreach (var directoryPath in Environment.GetEnvironmentVariable("PATH").Split(';'))
+            {
+                var filePath = Path.Combine(directoryPath,fileName);
+                if (File.Exists(filePath))
+                {
+                    return filePath;
+                }
+            }
+            
+            // Return null (not found).
+            return null;
         }
         
         /*

@@ -5,6 +5,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -31,7 +32,7 @@ namespace NexusEmbeddedVSCode
          */
         public static string GetExecutableLocation()
         {
-            return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"),"Programs","Microsoft VS Code","Code.exe");
+            return EditorWindow.GetFileLocation("Code.exe",new List<string>() { Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"),"Programs","Microsoft VS Code") } );
         }
         
         /*
