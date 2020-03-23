@@ -42,7 +42,7 @@ namespace NexusEmbeddedVSCode
             // Create and start the process.
             var process = new Process();
             process.StartInfo.FileName = GetExecutableLocation();
-            process.StartInfo.Arguments = structure.GetProjectDirectory().Replace(" ","\\ ") + " -n";;
+            process.StartInfo.Arguments = "\"" + structure.GetProjectDirectory() + "\" -n";;
             process.Start();
 
             // Create the window.
@@ -106,7 +106,8 @@ namespace NexusEmbeddedVSCode
             // Create and start the process.
             var process = new Process();
             process.StartInfo.FileName = GetExecutableLocation();
-            process.StartInfo.Arguments = fileLocation.Replace(" ","\\ ");
+            process.StartInfo.Arguments = "\"" + fileLocation + "\"";
+            Console.WriteLine(process.StartInfo.Arguments);
             process.Start();
             
             // Focus the window after opening.
