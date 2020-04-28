@@ -83,7 +83,7 @@ function EmbeddedEditorSession:ConnectEditor()
         --Create the script to connect.
         local ConnectScript = Instance.new("Script")
         ConnectScript.Name = self.SessionId
-        ConnectScript.Source = "--[[\nNexus Embedded Editor is attempting detection.\nDo not close or unfocus this script.\n\nSession: " + self.SessionId + "\n--]]"
+        ConnectScript.Source = "--[[\nNexus Embedded Editor is attempting detection.\nDo not close or unfocus this script.\n\nSession: "..self.SessionId.."\n--]]"
         ConnectScript.Archivable = false
         ConnectScript.Parent = game:GetService("ServerScriptService")
         NexusPluginFramework:GetPlugin():OpenScript(ConnectScript)
