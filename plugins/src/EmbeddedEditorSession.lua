@@ -221,10 +221,20 @@ Updates the source of the temporary scripts.
 --]]
 function EmbeddedEditorSession:UpdateTemporaryScripts()
     if self.Connected then
+        --Update the scripts.
+        local ScriptsToRemove = {}
         for Script,Path in pairs(self.TemporaryScriptsMap) do
-            pcall(function()
+            local Worked,Return = pcall(function()
                 Script.Source = HttpService:GetAsync("http://localhost:"..tostring(self.Port).."/readscript?session="..self.SessionId.."&script="..Path)
             end)
+            if not Worked then
+                ScriptsToRemove[Script] = true
+            end
+        end
+
+        --Remove the scripts that return server errors.
+        for Script,_ in pairs(ScriptsToRemove) do
+            self.TemporaryScriptsMap[Script] = nil
         end
     end
 end
