@@ -241,6 +241,7 @@ namespace NexusEmbeddedEditor.Window
             // Open the file if the editor is still defined.
             if (this.ExternalEditor != null)
             {
+                this.GetEditorWindow(true);
                 this.ExternalEditor.OpenFile(fileLocation);
             }
             
