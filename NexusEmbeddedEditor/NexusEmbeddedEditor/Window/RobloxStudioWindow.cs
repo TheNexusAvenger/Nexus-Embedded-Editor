@@ -4,6 +4,7 @@
  * Performs operation on Roblox Studio.
  */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace NexusEmbeddedEditor.Window
         private Condition EditorCondition;
         private Condition TabCondition;
         private WindowPattern FocusPattern;
-        private AutomationElement EditorParent;
+        public AutomationElement EditorParent;
         private bool Active = true;
         private EditorWindow ExternalEditor;
         
@@ -45,11 +46,7 @@ namespace NexusEmbeddedEditor.Window
                 new PropertyCondition(AutomationElement.ClassNameProperty, "Qt5QWindowIcon"),
                 new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Pane)
             }.ToArray());
-            this.EditorCondition = new AndCondition(new List<Condition>
-            {
-                new PropertyCondition(AutomationElement.ClassNameProperty, "Qt5QWindowIcon"),
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit)
-            }.ToArray());
+            this.EditorCondition = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit);
             this.TabCondition = new AndCondition(new List<Condition>
             {
                 new PropertyCondition(AutomationElement.ClassNameProperty, "Qt5QWindowIcon"),
@@ -78,8 +75,7 @@ namespace NexusEmbeddedEditor.Window
             {
                 try
                 {
-                    var name = this.EditorWindow.Current.Name;
-                    return true;
+                    return !this.EditorWindow.Current.BoundingRectangle.IsEmpty;
                 }
                 catch (ElementNotAvailableException)
                 {
@@ -103,15 +99,32 @@ namespace NexusEmbeddedEditor.Window
             }
             
             // Search selected for the editor.
-            foreach (AutomationElement editWindow in this.EditorParent.FindAll(TreeScope.Children,this.EditorCondition))
+            AutomationElement newEditor = null;
+            var selected = false;
+            foreach (AutomationElement editorPane in this.EditorParent.FindAll(TreeScope.Children, this.PaneCondition))
             {
-                if (editWindow.Current.HasKeyboardFocus) {
-                    this.EditorWindow = editWindow;
+                // Search for the editor window in the pane.
+                foreach (AutomationElement editWindow in editorPane.FindAll(TreeScope.Children,this.EditorCondition))
+                {
+                    selected = editWindow.Current.HasKeyboardFocus;
+                    if (newEditor == null || selected) {
+                        newEditor = editWindow;
+                        if (selected)
+                        {
+                            break;
+                        }
+                    }
+                }
+                
+                // Stop searching if a focused editor exists.
+                if (selected)
+                {
                     break;
                 }
             }
-            
+
             // Return the editor.
+            this.EditorWindow = newEditor;
             return this.EditorWindow;
         }
         
