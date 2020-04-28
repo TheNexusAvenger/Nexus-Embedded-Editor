@@ -108,7 +108,6 @@ namespace NexusEmbeddedVSCode
             var process = new Process();
             process.StartInfo.FileName = GetExecutableLocation();
             process.StartInfo.Arguments = "\"" + fileLocation + "\"";
-            Console.WriteLine(process.StartInfo.Arguments);
             process.Start();
             
             // Focus the window after opening.
