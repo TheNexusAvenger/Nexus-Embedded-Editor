@@ -16,6 +16,53 @@ local StudioService = game:GetService("StudioService")
 
 
 --[[
+Performs an HTTP request and returns the response.
+Throws an error if an HTTP or transport error occured.
+--]]
+local function RequestAsync(Request)
+	--Send the requesst.
+	local Response = HttpService:RequestAsync(Request)
+	
+	--Raise an error if an HTTP Error was returned.
+	local Body = Response.Body
+	if Response.StatusCode >= 400 then
+		error(Body)
+	end
+	
+	--Return the content.
+	return Body
+end
+
+
+--[[
+Sends a HTTP GET request and returns the response.
+Throws an error if an HTTP or transport error occured.
+--]]
+local function GetAsync(Url)
+	return RequestAsync({
+		Url = Url,
+		Method = "GET",
+	})
+end
+
+--[[
+Sends a HTTP POST request and returns the response.
+Throws an error if an HTTP or transport error occured.
+--]]
+local function PostAsync(Url,Content)
+	return RequestAsync({
+		Url = Url,
+		Method = "POST",
+		Body = Content,
+		Headers = {
+            ["Content-Type"] = "text/plain",
+		},
+	})
+end
+
+
+
+--[[
 Creates an Embedded Editor Session object.
 --]]
 function EmbeddedEditorSession:__new(Port)
@@ -36,7 +83,7 @@ Returns if there was an error for calls where this is called first.
 function EmbeddedEditorSession:UpdateState(SurpressWarnings)
     --Send the session request.
     local Worked,Return = pcall(function()
-        return HttpService:GetAsync("http://localhost:"..tostring(self.Port).."/session?session="..self.SessionId)
+        return GetAsync("http://localhost:"..tostring(self.Port).."/session?session="..self.SessionId)
     end)
 
     --Update the state if the request was successful and got a response.
@@ -59,7 +106,7 @@ function EmbeddedEditorSession:UpdateState(SurpressWarnings)
             warn("Nexus Embedded Editor is unreachable. Is it active?")
         end
         return true
-    elseif Return == "HTTP 400 (Bad Request)" then
+    elseif string.find(Return,"Session not found") then
         return false
     else
         if not SurpressWarnings then
@@ -90,12 +137,13 @@ function EmbeddedEditorSession:ConnectEditor()
 
         --Send the connect request.
         local Worked,Return = pcall(function()
-            return HttpService:PostAsync("http://localhost:"..tostring(self.Port).."/connect?session="..self.SessionId,"")
+            return PostAsync("http://localhost:"..tostring(self.Port).."/connect?session="..self.SessionId,"Unused")
         end)
 
         --Warn that the detection failed.
         if not Worked then
             warn("Nexus Embedded Editor server failed to detect. Did you unfocus the script?")
+            warn("\tError: "..tostring(Return))
         end
 
         --Destroy the connect script.
@@ -120,7 +168,7 @@ function EmbeddedEditorSession:DisconnectEditor()
     if self.Connected then
         --Send the disconnect request.
         local Worked,Return = pcall(function()
-            return HttpService:PostAsync("http://localhost:"..tostring(self.Port).."/disconnect?session="..self.SessionId,"")
+            return PostAsync("http://localhost:"..tostring(self.Port).."/disconnect?session="..self.SessionId,"Unused")
         end)
 
         --Warn that the disconnect failed.
@@ -150,7 +198,7 @@ function EmbeddedEditorSession:AttachEditor()
     if not self.Attached then
         --Send the attach request.
         local Worked,Return = pcall(function()
-            return HttpService:PostAsync("http://localhost:"..tostring(self.Port).."/attach?session="..self.SessionId,"")
+            return PostAsync("http://localhost:"..tostring(self.Port).."/attach?session="..self.SessionId,"Unused")
         end)
 
         --Warn that the attach failed.
@@ -177,7 +225,7 @@ function EmbeddedEditorSession:DetachEditor()
     if self.Attached then
         --Send the detach request.
         local Worked,Return = pcall(function()
-            return HttpService:PostAsync("http://localhost:"..tostring(self.Port).."/detach?session="..self.SessionId,"")
+            return PostAsync("http://localhost:"..tostring(self.Port).."/detach?session="..self.SessionId,"Unused")
         end)
 
         --Warn that the detach failed.
@@ -200,7 +248,7 @@ function EmbeddedEditorSession:UpdateOpenScript()
         if OpenScript then
             --Send the open script request.
             local Worked,Return = pcall(function()
-                return HttpService:PostAsync("http://localhost:"..tostring(self.Port).."/openscript?session="..self.SessionId.."&script="..OpenScript:GetFullName(),OpenScript.Source)
+                return PostAsync("http://localhost:"..tostring(self.Port).."/openscript?session="..self.SessionId.."&script="..OpenScript:GetFullName(),OpenScript.Source)
             end)
 
             --Add the temporary script.
@@ -225,7 +273,7 @@ function EmbeddedEditorSession:UpdateTemporaryScripts()
         local ScriptsToRemove = {}
         for Script,Path in pairs(self.TemporaryScriptsMap) do
             local Worked,Return = pcall(function()
-                Script.Source = HttpService:GetAsync("http://localhost:"..tostring(self.Port).."/readscript?session="..self.SessionId.."&script="..Path)
+                Script.Source = GetAsync("http://localhost:"..tostring(self.Port).."/readscript?session="..self.SessionId.."&script="..Path)
             end)
             if not Worked then
                 ScriptsToRemove[Script] = true
