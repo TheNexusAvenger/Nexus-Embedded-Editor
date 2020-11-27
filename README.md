@@ -53,7 +53,7 @@ a justification of why that tool is used.
 ## Limitations
 This project has a lot of limitations that should be considered.
 
-### Winodws Only
+### Windows Only
 While Rojo and a lot of external editors exist on macOS and Linux,
 Nexus Embedded Editor is only buildable and usable under Windows.
 
