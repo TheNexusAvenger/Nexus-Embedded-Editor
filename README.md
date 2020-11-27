@@ -39,7 +39,7 @@ of why that editor is used. Familiarity is a valid reason unless it is an "infer
 like Notepad or WordPad.
 
 ### Plugins
-Each editor has their own assossiated plugin rather than 1 massive plugin with
+Each editor has their own associated plugin rather than 1 massive plugin with
 all of the editors since Roblox developers using Rojo typically use only 1 external editor.
 The plugins can be found on the Roblox Market Place for the following editors:
 * [Microsoft Visual Studio Code](https://www.roblox.com/library/4790916291/Nexus-Embedded-VS-Code)
@@ -53,7 +53,7 @@ a justification of why that tool is used.
 ## Limitations
 This project has a lot of limitations that should be considered.
 
-### Winodws Only
+### Windows Only
 While Rojo and a lot of external editors exist on macOS and Linux,
 Nexus Embedded Editor is only buildable and usable under Windows.
 
@@ -78,12 +78,12 @@ This could be addressed reasonably easily on the server, but would require addin
 a user interface for the client.
 
 ### More Editors
-More editors could be added if there is requests for them. See the section
+More editors could be added if there are requests for them. See the section
 about supported editors.
 
 ### More Project Structures
 Currently, only Rojo is supported for project structures. Alternatives to Rojo
-exist and could be supporte. The file resolver may need to be modified for
+exist and could be supported. The file resolver may need to be modified for
 cases where project files are different (ex: `.client.lua` in Rojo is `.local.lua`
 in another system).
 
@@ -107,4 +107,4 @@ fixable due to limitations of the system.
 
 ## License
 Nexus Instance is available under the terms of the Apache 
-Liscence 2.0. See [LICENSE](LICENSE) for details.
+License 2.0. See [LICENSE](LICENSE) for details.
