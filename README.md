@@ -106,5 +106,5 @@ Both issues and pull requests are accepted for this project. Issues may not be
 fixable due to limitations of the system.
 
 ## License
-Nexus Instance is available under the terms of the Apache 
-License 2.0. See [LICENSE](LICENSE) for details.
+Nexus Instance is available under the terms of the MIT 
+License. See [LICENSE](LICENSE) for details.
