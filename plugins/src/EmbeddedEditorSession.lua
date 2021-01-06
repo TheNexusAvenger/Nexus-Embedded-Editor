@@ -103,7 +103,9 @@ function EmbeddedEditorSession:UpdateState(SurpressWarnings)
         return true
     elseif Return == "HttpError: ConnectFail" then
         if not SurpressWarnings then
-            warn("Nexus Embedded Editor is unreachable. Is it active?")
+            warn("Nexus Embedded Editor server is unreachable. Is it active?")
+            warn("Make sure the server is running in the operating system.")
+            warn("More information and the server files: Github/TheNexusAvenger/Nexus-Embedded-Editor")
         end
         return true
     elseif string.find(Return,"Session not found") then
