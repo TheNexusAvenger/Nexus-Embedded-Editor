@@ -46,7 +46,7 @@ The plugins can be found on the Roblox Market Place for the following editors:
 
 ## Supported Project Structures
 Currently, only [Rojo](https://github.com/rojo-rbx/rojo) is supported
-since it is project manager endorsed by Roblox employees. Pull requests
+since it is the project manager endorsed by Roblox employees. Pull requests
 and issues about adding other project structures are accepted if there is
 a justification of why that tool is used.
 
