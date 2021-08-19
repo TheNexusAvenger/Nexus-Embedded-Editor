@@ -21,8 +21,10 @@ namespace NexusEmbeddedEditor.Window
         public BaseWindow Window;
         private ProjectStructure Structure;
         private AutomationElement EditorWindow;
+        private AutomationElement SelectedInstance;
         private Condition ExplorerWidgetCondition;
         private Condition DirectChildCondition;
+        private Condition MainViewCondition;
         private WindowPattern FocusPattern;
         public AutomationElement EditorParent;
         private bool Active = true;
@@ -42,13 +44,38 @@ namespace NexusEmbeddedEditor.Window
             // Create the conditions.
             this.ExplorerWidgetCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.objectExplorer");
             this.DirectChildCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "");
+            this.MainViewCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.mainViewStackedWidget");
+
+            AutomationElementCollection allElements = this.Window.Window.FindAll(TreeScope.Descendants, Condition.TrueCondition);
+
+            AutomationElement mainView = this.Window.Window.FindFirst(
+                TreeScope.Descendants, 
+                new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.mainViewStackedWidget")
+            );
+
+            AutomationElementCollection allViews = mainView.FindFirst(TreeScope.Children, this.DirectChildCondition)
+                .FindAll(TreeScope.Children, Condition.TrueCondition);
 
             // Get the parents.
             this.EditorParent = this.Window.Window
                 .FindFirst(TreeScope.Children, this.ExplorerWidgetCondition)
                 .FindFirst(TreeScope.Children, this.DirectChildCondition);
         }
-        
+
+        private List<AutomationElement> GetPath(AutomationElement ancestor, AutomationElement element)
+        {
+            TreeWalker finder = new TreeWalker(Condition.TrueCondition);
+            List<AutomationElement> path = new List<AutomationElement>();
+            AutomationElement currentElement = element;
+            while (currentElement != ancestor && currentElement != null)
+            {
+                path.Add(currentElement);
+                currentElement = finder.GetParent(currentElement);
+            }
+            path.Add(ancestor);
+            return path;
+        }
+
         /*
          * Fetches a Roblox Studio window.
          */
@@ -63,7 +90,7 @@ namespace NexusEmbeddedEditor.Window
         public bool IsEditorWindowAvailable()
         {
             // Return if the name can be fetched.
-            if (this.EditorWindow != null)
+            if (this.SelectedInstance != null && this.EditorWindow != null)
             {
                 try
                 {
@@ -71,6 +98,7 @@ namespace NexusEmbeddedEditor.Window
                 }
                 catch (ElementNotAvailableException)
                 {
+                    this.SelectedInstance = null;
                     this.EditorWindow = null;
                 }
             }
@@ -91,7 +119,7 @@ namespace NexusEmbeddedEditor.Window
             }
             
             // Search selected for the editor.
-            AutomationElement newEditor = null;
+            AutomationElement selectedInstance = null;
             var selected = false;
 
             foreach (AutomationElement editorPane in this.EditorParent.FindAll(TreeScope.Children, this.DirectChildCondition))
@@ -100,8 +128,8 @@ namespace NexusEmbeddedEditor.Window
                 foreach (AutomationElement editWindow in editorPane.FindAll(TreeScope.Children, this.DirectChildCondition))
                 {
                     selected = editWindow.Current.HasKeyboardFocus;
-                    if (newEditor == null || selected) {
-                        newEditor = editWindow;
+                    if (selectedInstance == null || selected) {
+                        selectedInstance = editWindow;
                         if (selected)
                         {
                             break;
@@ -116,7 +144,43 @@ namespace NexusEmbeddedEditor.Window
                 }
             }
 
-            // Return the editor.
+            string SCRIPT_NAME = selectedInstance.Current.Name;
+
+            AutomationElement newEditor = null;
+
+            AutomationElementCollection editors = this.Window.Window.FindAll(
+                TreeScope.Descendants,
+                new PropertyCondition(AutomationElement.ClassNameProperty, "StudioScriptEditor")
+            );
+            foreach (AutomationElement editor in editors)
+            {
+                var path = this.GetPath(editor, this.Window.Window);
+                var window = path[path.Count - 1];
+                Console.WriteLine("WRITING WINDOW IDs");
+                foreach (AutomationElement elem in path)
+                {
+                    Console.WriteLine(elem.Current.Name);
+                }
+                if (window.Current.AutomationId.StartsWith(SCRIPT_NAME))
+                {
+                    newEditor = editor;
+                    break;
+                }
+            }
+
+            if (newEditor == null)
+            {
+                var mainWindow = this.Window.Window.FindFirst(
+                    TreeScope.Descendants,
+                    new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.mainViewStackedWidget")
+                );
+                newEditor = mainWindow.FindFirst(
+                    TreeScope.Descendants,
+                    new PropertyCondition(AutomationElement.ClassNameProperty, "StudioScriptEditor")
+                );
+            }
+
+            this.SelectedInstance = selectedInstance;
             this.EditorWindow = newEditor;
             return this.EditorWindow;
         }
