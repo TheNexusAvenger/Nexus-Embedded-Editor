@@ -21,13 +21,13 @@ namespace NexusEmbeddedEditor.Window
         public BaseWindow Window;
         private ProjectStructure Structure;
         private AutomationElement EditorWindow;
-        private AutomationElement SelectedInstance;
         private Condition ExplorerWidgetCondition;
         private Condition DirectChildCondition;
         private WindowPattern FocusPattern;
         public AutomationElement EditorParent;
         private bool Active = true;
         private EditorWindow ExternalEditor;
+        private string ScriptName;
         
         /*
          * Creates a Roblox Studio Window object.
@@ -86,7 +86,7 @@ namespace NexusEmbeddedEditor.Window
         public bool IsEditorWindowAvailable()
         {
             // Return if the name can be fetched.
-            if (this.SelectedInstance != null && this.EditorWindow != null)
+            if (this.EditorWindow != null)
             {
                 try
                 {
@@ -94,7 +94,6 @@ namespace NexusEmbeddedEditor.Window
                 }
                 catch (ElementNotAvailableException)
                 {
-                    this.SelectedInstance = null;
                     this.EditorWindow = null;
                 }
             }
@@ -108,41 +107,12 @@ namespace NexusEmbeddedEditor.Window
          */
         public AutomationElement GetEditorWindow(bool forceUpdate = false)
         {
-            // Return the existing window if one exists.
-            if (this.IsEditorWindowAvailable() && (this.EditorWindow.Current.HasKeyboardFocus || !forceUpdate))
-            {
-                return this.EditorWindow;
-            }
-            
-            // Search selected for the editor.
-            AutomationElement selectedInstance = null;
-            bool selected = false;
-
-            foreach (AutomationElement instanceTree in this.EditorParent.FindAll(TreeScope.Children, this.DirectChildCondition))
-            {
-                // Search for the editor window in the pane.
-                foreach (AutomationElement instance in instanceTree.FindAll(TreeScope.Children, this.DirectChildCondition))
-                {
-                    selected = instance.Current.HasKeyboardFocus;
-                    if (selected) {
-                        selectedInstance = instance;
-                        break;
-                    }
-                }
-                
-                // Stop searching if a focused editor exists.
-                if (selected)
-                {
-                    break;
-                }
-            }
 
             AutomationElement newEditor = null;
 
-            if (selectedInstance != null)
+            if (this.ScriptName != null)
             {
-                string SCRIPT_NAME = selectedInstance.Current.Name;
-                string automationId = $"RibbonMainWindow.{SCRIPT_NAME}";
+                string automationId = $"RibbonMainWindow.{this.ScriptName}";
 
                 AutomationElementCollection editors = this.Window.Window.FindAll(
                     TreeScope.Descendants,
@@ -172,7 +142,6 @@ namespace NexusEmbeddedEditor.Window
                 }
             }
 
-            this.SelectedInstance = selectedInstance;
             this.EditorWindow = newEditor;
             return this.EditorWindow;
         }
@@ -278,6 +247,8 @@ namespace NexusEmbeddedEditor.Window
         public bool OpenScript(string scriptPath,string existingSource)
         {
             // Get the file location.
+            string[] strings = scriptPath.Split('.');
+            this.ScriptName = strings[strings.Length - 1];
             var fileLocation = this.Structure.GetFileLocation(scriptPath);
             var isTemporary = false;
             if (fileLocation == null)
