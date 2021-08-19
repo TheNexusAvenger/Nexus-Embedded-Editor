@@ -21,9 +21,8 @@ namespace NexusEmbeddedEditor.Window
         public BaseWindow Window;
         private ProjectStructure Structure;
         private AutomationElement EditorWindow;
-        private Condition PaneCondition;
-        private Condition EditorCondition;
-        private Condition TabCondition;
+        private Condition ExplorerWidgetCondition;
+        private Condition DirectChildCondition;
         private WindowPattern FocusPattern;
         public AutomationElement EditorParent;
         private bool Active = true;
@@ -41,20 +40,13 @@ namespace NexusEmbeddedEditor.Window
             this.FocusPattern = (WindowPattern) this.Window.Window.GetCurrentPattern(WindowPattern.Pattern);
             
             // Create the conditions.
-            this.PaneCondition = new AndCondition(new List<Condition>
-            {
-                new PropertyCondition(AutomationElement.ClassNameProperty, "Qt5QWindowIcon"),
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Pane)
-            }.ToArray());
-            this.EditorCondition = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit);
-            this.TabCondition = new AndCondition(new List<Condition>
-            {
-                new PropertyCondition(AutomationElement.ClassNameProperty, "Qt5QWindowIcon"),
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Tab)
-            }.ToArray());
-            
+            this.ExplorerWidgetCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.objectExplorer");
+            this.DirectChildCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "");
+
             // Get the parents.
-            this.EditorParent = this.Window.Window.FindFirst(TreeScope.Children,this.PaneCondition).FindFirst(TreeScope.Children,this.PaneCondition).FindAll(TreeScope.Children,this.PaneCondition)[1];
+            this.EditorParent = this.Window.Window
+                .FindFirst(TreeScope.Children, this.ExplorerWidgetCondition)
+                .FindFirst(TreeScope.Children, this.DirectChildCondition);
         }
         
         /*
@@ -101,10 +93,11 @@ namespace NexusEmbeddedEditor.Window
             // Search selected for the editor.
             AutomationElement newEditor = null;
             var selected = false;
-            foreach (AutomationElement editorPane in this.EditorParent.FindAll(TreeScope.Children, this.PaneCondition))
+
+            foreach (AutomationElement editorPane in this.EditorParent.FindAll(TreeScope.Children, this.DirectChildCondition))
             {
                 // Search for the editor window in the pane.
-                foreach (AutomationElement editWindow in editorPane.FindAll(TreeScope.Children,this.EditorCondition))
+                foreach (AutomationElement editWindow in editorPane.FindAll(TreeScope.Children, this.DirectChildCondition))
                 {
                     selected = editWindow.Current.HasKeyboardFocus;
                     if (newEditor == null || selected) {
