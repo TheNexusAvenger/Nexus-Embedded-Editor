@@ -18,13 +18,13 @@ namespace NexusEmbeddedEditor.Window
 {
     public class RobloxStudioWindow
     {
+        private static Condition EditorCondition = new PropertyCondition(AutomationElement.ClassNameProperty, "StudioScriptEditor");
+        private static Condition MainViewCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.mainViewStackedWidget");
+
         public BaseWindow Window;
         private ProjectStructure Structure;
         private AutomationElement EditorWindow;
-        private Condition ExplorerWidgetCondition;
-        private Condition DirectChildCondition;
         private WindowPattern FocusPattern;
-        public AutomationElement EditorParent;
         private bool Active = true;
         private EditorWindow ExternalEditor;
         private string ScriptName;
@@ -39,37 +39,46 @@ namespace NexusEmbeddedEditor.Window
             
             // Create the pattern.
             this.FocusPattern = (WindowPattern) this.Window.Window.GetCurrentPattern(WindowPattern.Pattern);
-            
-            // Create the conditions.
-            this.ExplorerWidgetCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.objectExplorer");
-            this.DirectChildCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "");
-
-            AutomationElement mainView = this.Window.Window.FindFirst(
-                TreeScope.Descendants, 
-                new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.mainViewStackedWidget")
-            );
-
-            AutomationElementCollection allViews = mainView.FindFirst(TreeScope.Children, this.DirectChildCondition)
-                .FindAll(TreeScope.Children, Condition.TrueCondition);
-
-            // Get the parents.
-            this.EditorParent = this.Window.Window
-                .FindFirst(TreeScope.Children, this.ExplorerWidgetCondition)
-                .FindFirst(TreeScope.Children, this.DirectChildCondition);
         }
 
-        private List<AutomationElement> GetPath(AutomationElement ancestor, AutomationElement element)
+        private List<AutomationElement> GetPath(AutomationElement element)
         {
+            if (element == null)
+            {
+                throw new ArgumentNullException("element");
+            }
+
             TreeWalker finder = new TreeWalker(Condition.TrueCondition);
             List<AutomationElement> path = new List<AutomationElement>();
             AutomationElement currentElement = element;
-            while (currentElement != ancestor && currentElement != null)
+            while (currentElement != this.Window.Window && currentElement != null)
             {
                 path.Add(currentElement);
                 currentElement = finder.GetParent(currentElement);
             }
-            path.Add(ancestor);
+            path.Add(this.Window.Window);
             return path;
+        }
+
+        private AutomationElementCollection GetAllEditorWindows()
+        {
+            return this.Window.Window.FindAll(
+                TreeScope.Descendants,
+                RobloxStudioWindow.EditorCondition
+            );
+        }
+
+        private AutomationElement GetMainEditorWindow()
+        {
+            AutomationElement mainWindow = this.Window.Window.FindFirst(
+                TreeScope.Children,
+                RobloxStudioWindow.MainViewCondition
+            );
+
+            return mainWindow.FindFirst(
+                TreeScope.Descendants,
+                RobloxStudioWindow.EditorCondition
+            );
         }
 
         /*
@@ -101,7 +110,7 @@ namespace NexusEmbeddedEditor.Window
             // Return false (error or not available).
             return false;
         }
-        
+
         /*
          * Returns the editor window.
          */
@@ -112,36 +121,27 @@ namespace NexusEmbeddedEditor.Window
 
             if (this.ScriptName != null)
             {
+                // check for a detached window first.
                 string automationId = $"RibbonMainWindow.{this.ScriptName}";
 
-                AutomationElementCollection editors = this.Window.Window.FindAll(
-                    TreeScope.Descendants,
-                    new PropertyCondition(AutomationElement.ClassNameProperty, "StudioScriptEditor")
-                );
-                foreach (AutomationElement editor in editors)
+                foreach (AutomationElement editor in this.GetAllEditorWindows())
                 {
-                    var path = this.GetPath(this.Window.Window, editor);
-                    var window = path[path.Count - 2];
-                    if (window.Current.AutomationId.StartsWith(automationId))
+                    List<AutomationElement> path = this.GetPath(editor);
+                    AutomationElement parentWindow = path[path.Count - 2];
+                    if (parentWindow.Current.AutomationId.StartsWith(automationId))
                     {
                         newEditor = editor;
                         break;
                     }
                 }
 
+                // if none of the detached windows matched the automation id,
+                // assume it's in the main window.
                 if (newEditor == null)
                 {
-                    var mainWindow = this.Window.Window.FindFirst(
-                        TreeScope.Descendants,
-                        new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.mainViewStackedWidget")
-                    );
-                    newEditor = mainWindow.FindFirst(
-                        TreeScope.Descendants,
-                        new PropertyCondition(AutomationElement.ClassNameProperty, "StudioScriptEditor")
-                    );
+                    newEditor = this.GetMainEditorWindow();
                 }
             }
-
             this.EditorWindow = newEditor;
             return this.EditorWindow;
         }
