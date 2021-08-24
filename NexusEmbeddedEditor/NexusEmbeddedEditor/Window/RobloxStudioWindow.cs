@@ -102,9 +102,12 @@ namespace NexusEmbeddedEditor.Window
             if (this.ScriptName != null) {
                 string automationId = $"RibbonMainWindow.{this.ScriptName}";
 
+                // Get every detached script editor window.
+                // They each have the ClassName "DocDockWidget".
                 AutomationElementCollection subElements = this.Window.Window
                     .FindAll(TreeScope.Children, RobloxStudioWindow.DocDockWidgetCondition);
 
+                // Get the child window with the targeted automation id if it exists.
                 AutomationElement childWindow = null;
                 foreach (AutomationElement element in subElements)
                 {
@@ -128,6 +131,7 @@ namespace NexusEmbeddedEditor.Window
 
         private AutomationElement GetMainViewEditorWindow()
         {
+            // Whenever Condition.TrueCondition is used, it's assumed there is only one child.
             return this.Window.Window
                 .FindFirst(TreeScope.Children, RobloxStudioWindow.MainViewCondition)
                 .FindFirst(TreeScope.Children, Condition.TrueCondition)
