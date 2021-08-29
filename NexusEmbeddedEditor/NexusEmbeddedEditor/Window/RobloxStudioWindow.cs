@@ -17,6 +17,7 @@ using WindowVisualState = System.Windows.Automation.WindowVisualState;
 namespace NexusEmbeddedEditor.Window
 {
 
+#if DEBUG
     /*
      * An AutomationElement wrapper meant for debugging the Automation hierarchy.
      * This should NOT be used in production.
@@ -28,7 +29,6 @@ namespace NexusEmbeddedEditor.Window
 
      * There should now be a tree in the Locals widget containing every element.
      */
-    /*
     public class DebugElement
     {
         public AutomationElement Element;
@@ -61,12 +61,12 @@ namespace NexusEmbeddedEditor.Window
         private AutomationElementCollection GetRawChildren()
         {
             return this.Element.FindAll(
-                TreeScope.Children, 
+                TreeScope.Children,
                 Condition.TrueCondition
             );
         }
     }
-    //*/
+#endif
 
     public class RobloxStudioWindow
     {
