@@ -111,18 +111,26 @@ namespace NexusEmbeddedEditor.Window
                 AutomationElement childWindow = null;
                 foreach (AutomationElement element in subElements)
                 {
-                    if (element.Current.AutomationId.StartsWith(automationId))
+                    try
                     {
-                        childWindow = element;
-                        break;
+                        if (element.Current.AutomationId.StartsWith(automationId))
+                        {
+                            childWindow = element;
+                            break;
+                        }
                     }
+                    catch (ElementNotAvailableException) { }
                 }
 
                 if (childWindow != null)
                 {
-                    detachedEditorWindow = childWindow
-                        .FindFirst(TreeScope.Children, RobloxStudioWindow.QWidgetCondition)
-                        .FindFirst(TreeScope.Children, Condition.TrueCondition);
+                    try
+                    {
+                        detachedEditorWindow = childWindow
+                            .FindFirst(TreeScope.Children, RobloxStudioWindow.QWidgetCondition)
+                            .FindFirst(TreeScope.Children, Condition.TrueCondition);
+                    }
+                    catch (NullReferenceException) { }
                 }
             }
 
@@ -131,13 +139,21 @@ namespace NexusEmbeddedEditor.Window
 
         private AutomationElement GetMainViewEditorWindow()
         {
-            // Whenever Condition.TrueCondition is used, it's assumed there is only one child.
-            return this.Window.Window
-                .FindFirst(TreeScope.Children, RobloxStudioWindow.MainViewCondition)
-                .FindFirst(TreeScope.Children, Condition.TrueCondition)
-                .FindFirst(TreeScope.Children, RobloxStudioWindow.QStackedWidgetCondition)
-                .FindFirst(TreeScope.Children, Condition.TrueCondition)
-                .FindFirst(TreeScope.Children, Condition.TrueCondition);
+            try
+            {
+                // Whenever Condition.TrueCondition is used, it's assumed there is only one child.
+                return this.Window.Window
+                    .FindFirst(TreeScope.Children, RobloxStudioWindow.MainViewCondition)
+                    .FindFirst(TreeScope.Children, Condition.TrueCondition)
+                    .FindFirst(TreeScope.Children, RobloxStudioWindow.QStackedWidgetCondition)
+                    .FindFirst(TreeScope.Children, Condition.TrueCondition)
+                    .FindFirst(TreeScope.Children, Condition.TrueCondition);
+            } 
+            catch (NullReferenceException)
+            {
+                return null;
+            }
+            
         }
 
         /*
@@ -180,15 +196,9 @@ namespace NexusEmbeddedEditor.Window
 
             if (this.ScriptName != null)
             {
-                // check for a detached window first.
-                newEditorWindow = this.GetDetachedEditorWindow();
-
-                // if a detached window was not found,
-                // assume it's in the main window.
-                if (newEditorWindow == null)
-                {
-                    newEditorWindow = this.GetMainViewEditorWindow();
-                }
+                // Check for a detached window first.
+                // If a detached window was not found, assume it's in the main window.
+                newEditorWindow = this.GetDetachedEditorWindow() ?? this.GetMainViewEditorWindow();
             }
 
             this.EditorWindow = newEditorWindow;
