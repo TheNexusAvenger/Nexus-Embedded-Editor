@@ -82,6 +82,7 @@ namespace NexusEmbeddedEditor.Window
         private bool Active = true;
         private EditorWindow ExternalEditor;
         private string ScriptName;
+        private AutomationElement MainViewEditorWindow;
         
         /*
          * Creates a Roblox Studio Window object.
@@ -139,15 +140,29 @@ namespace NexusEmbeddedEditor.Window
 
         private AutomationElement GetMainViewEditorWindow()
         {
+            AutomationElement mainEditor = this.MainViewEditorWindow;
+            try
+            {
+                if (mainEditor != null && !mainEditor.Current.BoundingRectangle.IsEmpty)
+                {
+                    return mainEditor;
+                }
+            }
+            catch (ElementNotAvailableException) { }
+            
             try
             {
                 // Whenever Condition.TrueCondition is used, it's assumed there is only one child.
-                return this.Window.Window
+                mainEditor = this.Window.Window
                     .FindFirst(TreeScope.Children, RobloxStudioWindow.MainViewCondition)
                     .FindFirst(TreeScope.Children, Condition.TrueCondition)
                     .FindFirst(TreeScope.Children, RobloxStudioWindow.QStackedWidgetCondition)
                     .FindFirst(TreeScope.Children, Condition.TrueCondition)
                     .FindFirst(TreeScope.Children, Condition.TrueCondition);
+
+                this.MainViewEditorWindow = mainEditor;
+
+                return mainEditor;
             } 
             catch (NullReferenceException)
             {
