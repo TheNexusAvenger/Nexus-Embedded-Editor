@@ -16,18 +16,73 @@ using WindowVisualState = System.Windows.Automation.WindowVisualState;
 
 namespace NexusEmbeddedEditor.Window
 {
+
+#if DEBUG
+    /*
+     * An AutomationElement wrapper meant for debugging the Automation hierarchy.
+     * This should NOT be used in production.
+     * 
+     * Usage:
+        var debug = new DebugElement(this.Window.Window);
+        
+        Console.WriteLine("Debugging...");  // set breakpoint here
+
+     * There should now be a tree in the Locals widget containing every element.
+     */
+    public class DebugElement
+    {
+        public AutomationElement Element;
+
+        public DebugElement[] Children;
+        public string Name;
+        public string AutomationId;
+        public string ClassName;
+        public ControlType ControlType;
+        public bool HasKeyboardFocus;
+
+        public DebugElement(AutomationElement element)
+        {
+            this.Element = element;
+
+            this.Name = element.Current.Name;
+            this.AutomationId = element.Current.AutomationId;
+            this.ClassName = element.Current.ClassName;
+            this.ControlType = element.Current.ControlType;
+            this.HasKeyboardFocus = element.Current.HasKeyboardFocus;
+
+            List<DebugElement> debugElements = new List<DebugElement>();
+            foreach (AutomationElement child in this.GetRawChildren())
+            {
+                debugElements.Add(new DebugElement(child));
+            }
+            this.Children = debugElements.ToArray();
+        }
+
+        private AutomationElementCollection GetRawChildren()
+        {
+            return this.Element.FindAll(
+                TreeScope.Children,
+                Condition.TrueCondition
+            );
+        }
+    }
+#endif
+
     public class RobloxStudioWindow
     {
+        private static Condition MainViewCondition = new PropertyCondition(AutomationElement.AutomationIdProperty, "RibbonMainWindow.mainViewStackedWidget");
+        private static Condition QStackedWidgetCondition = new PropertyCondition(AutomationElement.ClassNameProperty, "QStackedWidget");
+        private static Condition QWidgetCondition = new PropertyCondition(AutomationElement.ClassNameProperty, "QWidget");
+        private static Condition DocDockWidgetCondition = new PropertyCondition(AutomationElement.ClassNameProperty, "DocDockWidget");
+
         public BaseWindow Window;
         private ProjectStructure Structure;
         private AutomationElement EditorWindow;
-        private Condition PaneCondition;
-        private Condition EditorCondition;
-        private Condition TabCondition;
         private WindowPattern FocusPattern;
-        public AutomationElement EditorParent;
         private bool Active = true;
         private EditorWindow ExternalEditor;
+        private string ScriptName;
+        private AutomationElement MainViewEditorWindow;
         
         /*
          * Creates a Roblox Studio Window object.
@@ -39,24 +94,83 @@ namespace NexusEmbeddedEditor.Window
             
             // Create the pattern.
             this.FocusPattern = (WindowPattern) this.Window.Window.GetCurrentPattern(WindowPattern.Pattern);
-            
-            // Create the conditions.
-            this.PaneCondition = new AndCondition(new List<Condition>
-            {
-                new PropertyCondition(AutomationElement.ClassNameProperty, "Qt5QWindowIcon"),
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Pane)
-            }.ToArray());
-            this.EditorCondition = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit);
-            this.TabCondition = new AndCondition(new List<Condition>
-            {
-                new PropertyCondition(AutomationElement.ClassNameProperty, "Qt5QWindowIcon"),
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Tab)
-            }.ToArray());
-            
-            // Get the parents.
-            this.EditorParent = this.Window.Window.FindFirst(TreeScope.Children,this.PaneCondition).FindFirst(TreeScope.Children,this.PaneCondition).FindAll(TreeScope.Children,this.PaneCondition)[1];
         }
-        
+
+        private AutomationElement GetDetachedEditorWindow()
+        {
+            AutomationElement detachedEditorWindow = null;
+
+            if (this.ScriptName != null) {
+                string automationId = $"RibbonMainWindow.{this.ScriptName}";
+
+                // Get every detached script editor window.
+                // They each have the ClassName "DocDockWidget".
+                AutomationElementCollection subElements = this.Window.Window
+                    .FindAll(TreeScope.Children, RobloxStudioWindow.DocDockWidgetCondition);
+
+                // Get the child window with the targeted automation id if it exists.
+                AutomationElement childWindow = null;
+                foreach (AutomationElement element in subElements)
+                {
+                    try
+                    {
+                        if (element.Current.AutomationId.StartsWith(automationId))
+                        {
+                            childWindow = element;
+                            break;
+                        }
+                    }
+                    catch (ElementNotAvailableException) { }
+                }
+
+                if (childWindow != null)
+                {
+                    try
+                    {
+                        detachedEditorWindow = childWindow
+                            .FindFirst(TreeScope.Children, RobloxStudioWindow.QWidgetCondition)
+                            .FindFirst(TreeScope.Children, Condition.TrueCondition);
+                    }
+                    catch (NullReferenceException) { }
+                }
+            }
+
+            return detachedEditorWindow;
+        }
+
+        private AutomationElement GetMainViewEditorWindow()
+        {
+            AutomationElement mainEditor = this.MainViewEditorWindow;
+            try
+            {
+                if (mainEditor != null && !mainEditor.Current.BoundingRectangle.IsEmpty)
+                {
+                    return mainEditor;
+                }
+            }
+            catch (ElementNotAvailableException) { }
+            
+            try
+            {
+                // Whenever Condition.TrueCondition is used, it's assumed there is only one child.
+                mainEditor = this.Window.Window
+                    .FindFirst(TreeScope.Children, RobloxStudioWindow.MainViewCondition)
+                    .FindFirst(TreeScope.Children, Condition.TrueCondition)
+                    .FindFirst(TreeScope.Children, RobloxStudioWindow.QStackedWidgetCondition)
+                    .FindFirst(TreeScope.Children, Condition.TrueCondition)
+                    .FindFirst(TreeScope.Children, Condition.TrueCondition);
+
+                this.MainViewEditorWindow = mainEditor;
+
+                return mainEditor;
+            } 
+            catch (NullReferenceException)
+            {
+                return null;
+            }
+            
+        }
+
         /*
          * Fetches a Roblox Studio window.
          */
@@ -86,45 +200,23 @@ namespace NexusEmbeddedEditor.Window
             // Return false (error or not available).
             return false;
         }
-        
+
         /*
          * Returns the editor window.
          */
         public AutomationElement GetEditorWindow(bool forceUpdate = false)
         {
-            // Return the existing window if one exists.
-            if (this.IsEditorWindowAvailable() && (this.EditorWindow.Current.HasKeyboardFocus || !forceUpdate))
+
+            AutomationElement newEditorWindow = null;
+
+            if (this.ScriptName != null)
             {
-                return this.EditorWindow;
-            }
-            
-            // Search selected for the editor.
-            AutomationElement newEditor = null;
-            var selected = false;
-            foreach (AutomationElement editorPane in this.EditorParent.FindAll(TreeScope.Children, this.PaneCondition))
-            {
-                // Search for the editor window in the pane.
-                foreach (AutomationElement editWindow in editorPane.FindAll(TreeScope.Children,this.EditorCondition))
-                {
-                    selected = editWindow.Current.HasKeyboardFocus;
-                    if (newEditor == null || selected) {
-                        newEditor = editWindow;
-                        if (selected)
-                        {
-                            break;
-                        }
-                    }
-                }
-                
-                // Stop searching if a focused editor exists.
-                if (selected)
-                {
-                    break;
-                }
+                // Check for a detached window first.
+                // If a detached window was not found, assume it's in the main window.
+                newEditorWindow = this.GetDetachedEditorWindow() ?? this.GetMainViewEditorWindow();
             }
 
-            // Return the editor.
-            this.EditorWindow = newEditor;
+            this.EditorWindow = newEditorWindow;
             return this.EditorWindow;
         }
         
@@ -229,6 +321,8 @@ namespace NexusEmbeddedEditor.Window
         public bool OpenScript(string scriptPath,string existingSource)
         {
             // Get the file location.
+            string[] strings = scriptPath.Split('.');
+            this.ScriptName = strings[strings.Length - 1];
             var fileLocation = this.Structure.GetFileLocation(scriptPath);
             var isTemporary = false;
             if (fileLocation == null)
