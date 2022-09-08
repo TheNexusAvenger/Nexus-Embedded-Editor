@@ -4,6 +4,7 @@ TheNexusAvenger
 Session for Nexus Embedded Editor.
 --]]
 
+local ScriptEditorService = game:GetService("ScriptEditorService")
 local HttpService = game:GetService("HttpService")
 local StudioService = game:GetService("StudioService")
 
@@ -196,7 +197,8 @@ function EmbeddedEditorSession:DisconnectEditor()
     if self.Connected then
         --Send the disconnect request.
         local Worked, Return = pcall(function()
-            return PostAsync("http://localhost:"..tostring(self.Port).."/disconnect?session="..self.SessionId,"Unused")
+            local scriptDocumentation = ScriptEditorService:FindScriptDocument(OpenScript)
+            return PostAsync("http://localhost:"..tostring(self.Port).."/openscript?session="..self.SessionId.."&script="..OpenScript:GetFullName(),scriptDocumentation:GetText())
         end)
 
         --Warn that the disconnect failed.
@@ -301,7 +303,15 @@ function EmbeddedEditorSession:UpdateTemporaryScripts()
         local ScriptsToRemove = {}
         for Script, Path in pairs(self.TemporaryScriptsMap) do
             local Worked, Return = pcall(function()
-                Script.Source = GetAsync("http://localhost:"..tostring(self.Port).."/readscript?session="..self.SessionId.."&script="..Path)
+                local scriptDocumentation = ScriptEditorService:FindScriptDocument(Script)
+                local lineCount = scriptDocumentation:GetLineCount()
+                scriptDocumentation:EditTextAsync(
+                    GetAsync("http://localhost:"..tostring(self.Port).."/readscript?session="..self.SessionId.."&script="..Path),
+                    1,
+                    1,
+                    lineCount,
+                    #scriptDocumentation:GetLine(lineCount) + 1
+                )
             end)
             if not Worked then
                 ScriptsToRemove[Script] = true
